@@ -680,11 +680,11 @@ const Settings = {
               <div class="settings-about-ver">Version 1.0.0 · Made with 💜</div>
               <div class="settings-about-tagline">Your little corner of the internet.</div>
               <div class="settings-about-links">
-                <a href="terms.html" target="_blank">Terms</a>
+                <a href="terms.html" >Terms</a>
                 <span>·</span>
-                <a href="privacy.html" target="_blank">Privacy</a>
+                <a href="privacy.html" >Privacy</a>
                 <span>·</span>
-                <a href="help.html" target="_blank">Help</a>
+                <a href="help.html" >Help</a>
               </div>
             </div>
           </div>
