@@ -103,6 +103,9 @@ window.addEventListener('DOMContentLoaded', async () => {
       }
     } catch (err) {
       console.error('Auth error', err);
+      if (typeof API !== 'undefined' && API.token) {
+        API.token.remove();
+      }
       window.location.href = 'login.html';
       return;
     }

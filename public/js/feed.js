@@ -30,7 +30,22 @@ const Feed = {
       }
       
       AppState.posts.forEach(p => {
-        container.appendChild(this.buildPostCard(p));
+        // Map backend SQL row to what buildPostCard expects
+        const mappedPost = {
+          id: p.id,
+          user: p.username || 'Unknown',
+          emoji: p.emoji || '👤',
+          time: new Date(p.created_at).toLocaleString(),
+          mood: p.mood || '',
+          text: p.text || '',
+          likes: p.like_count || 0,
+          liked: !!p.liked_by_me,
+          comments: p.comment_count || 0,
+          photos: p.photos || [],
+          song: p.song || null,
+          privacy: p.privacy || 'everyone'
+        };
+        container.appendChild(this.buildPostCard(mappedPost));
       });
     } catch (err) {
       console.error(err);
