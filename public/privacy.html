@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FriendSpace — Privacy Policy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:   #7B2FBE;
+      --secondary: #FF6B9D;
+      --accent:    #FFD700;
+      --bg:        #0d0520;
+      --surface:   rgba(255,255,255,0.04);
+      --surface2:  rgba(255,255,255,0.08);
+      --border:    rgba(255,255,255,0.1);
+      --text:      #f0e6ff;
+      --muted:     #9b7ec8;
+      --danger:    #ff4f4f;
+      --success:   #4caf82;
+      --font:      'Nunito', sans-serif;
+      --title:     'Righteous', cursive;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .bg-scene {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .bg-scene::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 10% 20%,  rgba(123,47,190,0.5) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 90% 80%,  rgba(255,107,157,0.4) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 70% at 50% 100%, rgba(255,215,0,0.15) 0%, transparent 50%),
+        #0d0520;
+    }
+
+    .bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,107,157,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,107,157,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .content-card {
+      width: 100%;
+      max-width: 800px;
+      background: rgba(13, 5, 32, 0.85);
+      border: 1px solid rgba(255,107,157,0.3);
+      border-radius: 28px;
+      padding: 50px;
+      backdrop-filter: blur(24px);
+      box-shadow:
+        0 0 0 1px rgba(123,47,190,0.2),
+        0 32px 64px rgba(0,0,0,0.6);
+      color: var(--text);
+    }
+
+    h1, h2, h3 { font-family: var(--title); color: var(--secondary); margin-bottom: 16px; margin-top: 32px; letter-spacing: 1px;}
+    h1 { font-size: 42px; text-align: center; margin-top: 0; margin-bottom: 8px;}
+    .subtitle { text-align: center; color: var(--muted); margin-bottom: 40px; font-weight: 700; }
+    p { margin-bottom: 16px; line-height: 1.7; color: rgba(255,255,255,0.85); font-size: 15px;}
+    ul { margin-bottom: 16px; padding-left: 24px; color: rgba(255,255,255,0.85); line-height: 1.7; font-size: 15px;}
+    li { margin-bottom: 8px; }
+    a { color: var(--accent); text-decoration: none; font-weight: bold;}
+    a:hover { text-decoration: underline; color: var(--secondary); }
+    
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 30px;
+      color: var(--text);
+      background: rgba(255,255,255,0.1);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 800;
+      transition: all 0.2s ease;
+    }
+    .back-link:hover {
+      background: rgba(255,255,255,0.2);
+      transform: translateX(-4px);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-scene">
+    <div class="bg-grid"></div>
+  </div>
+
+  <div class="page">
+    <div class="content-card">
+      <a href="#" onclick="window.close(); window.history.back(); return false;" class="back-link">← Go Back / Close</a>
+      
+      <h1>Privacy Policy</h1>
+      <div class="subtitle">Last Updated: May 2026</div>
+
+      <p>At <strong>FriendSpace</strong>, we take your privacy seriously. This Privacy Policy explains how we collect, use, and protect your personal information when you use our platform.</p>
+
+      <h2>1. Information We Collect</h2>
+      <p>We collect information that you provide to us directly, including:</p>
+      <ul>
+        <li><strong>Account Information:</strong> Your username, email address, password, and profile details (such as your display name, mood, and tagline).</li>
+        <li><strong>Content:</strong> Photos, posts, comments, and messages you create or share on the platform.</li>
+        <li><strong>Usage Data:</strong> Information about how you interact with FriendSpace, including your IP address, browser type, and activity logs.</li>
+      </ul>
+
+      <h2>2. How We Use Your Information</h2>
+      <p>We use the information we collect to:</p>
+      <ul>
+        <li>Provide, maintain, and improve the FriendSpace platform.</li>
+        <li>Personalize your experience (like showing you relevant friends and trending topics).</li>
+        <li>Communicate with you, including sending updates, security alerts, and support messages.</li>
+        <li>Ensure the safety and security of our community.</li>
+      </ul>
+
+      <h2>3. Sharing Your Information</h2>
+      <p>We do not sell your personal information to third parties. We may share your information in the following situations:</p>
+      <ul>
+        <li>With other users, according to your privacy settings (e.g., your public profile and posts).</li>
+        <li>To comply with legal obligations, enforce our Terms of Service, or protect the rights and safety of our users.</li>
+      </ul>
+
+      <h2>4. Your Choices</h2>
+      <p>You have control over your data. You can:</p>
+      <ul>
+        <li>Update your profile information and privacy settings at any time in the "Settings" page.</li>
+        <li>Request the deletion of your account by contacting support.</li>
+      </ul>
+
+      <h2>5. Security</h2>
+      <p>We implement industry-standard security measures to protect your information. However, no method of transmission over the Internet is 100% secure, and we cannot guarantee absolute security.</p>
+
+      <h2>6. Contact Us</h2>
+      <p>If you have any questions or concerns about this Privacy Policy, please reach out to us at <strong>privacy@friendspace.local</strong>.</p>
+    </div>
+  </div>
+</body>
+</html>

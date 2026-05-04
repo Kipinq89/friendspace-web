@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FriendSpace — Terms of Service</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:   #7B2FBE;
+      --secondary: #FF6B9D;
+      --accent:    #FFD700;
+      --bg:        #0d0520;
+      --surface:   rgba(255,255,255,0.04);
+      --surface2:  rgba(255,255,255,0.08);
+      --border:    rgba(255,255,255,0.1);
+      --text:      #f0e6ff;
+      --muted:     #9b7ec8;
+      --danger:    #ff4f4f;
+      --success:   #4caf82;
+      --font:      'Nunito', sans-serif;
+      --title:     'Righteous', cursive;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .bg-scene {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .bg-scene::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 10% 20%,  rgba(123,47,190,0.5) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 90% 80%,  rgba(255,107,157,0.4) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 70% at 50% 100%, rgba(255,215,0,0.15) 0%, transparent 50%),
+        #0d0520;
+    }
+
+    .bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,107,157,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,107,157,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .content-card {
+      width: 100%;
+      max-width: 800px;
+      background: rgba(13, 5, 32, 0.85);
+      border: 1px solid rgba(255,107,157,0.3);
+      border-radius: 28px;
+      padding: 50px;
+      backdrop-filter: blur(24px);
+      box-shadow:
+        0 0 0 1px rgba(123,47,190,0.2),
+        0 32px 64px rgba(0,0,0,0.6);
+      color: var(--text);
+    }
+
+    h1, h2, h3 { font-family: var(--title); color: var(--secondary); margin-bottom: 16px; margin-top: 32px; letter-spacing: 1px;}
+    h1 { font-size: 42px; text-align: center; margin-top: 0; margin-bottom: 8px;}
+    .subtitle { text-align: center; color: var(--muted); margin-bottom: 40px; font-weight: 700; }
+    p { margin-bottom: 16px; line-height: 1.7; color: rgba(255,255,255,0.85); font-size: 15px;}
+    ul { margin-bottom: 16px; padding-left: 24px; color: rgba(255,255,255,0.85); line-height: 1.7; font-size: 15px;}
+    li { margin-bottom: 8px; }
+    a { color: var(--accent); text-decoration: none; font-weight: bold;}
+    a:hover { text-decoration: underline; color: var(--secondary); }
+    
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 30px;
+      color: var(--text);
+      background: rgba(255,255,255,0.1);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 800;
+      transition: all 0.2s ease;
+    }
+    .back-link:hover {
+      background: rgba(255,255,255,0.2);
+      transform: translateX(-4px);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-scene">
+    <div class="bg-grid"></div>
+  </div>
+
+  <div class="page">
+    <div class="content-card">
+      <a href="#" onclick="window.close(); window.history.back(); return false;" class="back-link">← Go Back / Close</a>
+      
+      <h1>Terms of Service</h1>
+      <div class="subtitle">Last Updated: May 2026</div>
+
+      <p>Welcome to <strong>FriendSpace</strong>! These Terms of Service ("Terms") govern your access to and use of the FriendSpace website, services, and applications. By accessing or using our platform, you agree to be bound by these Terms.</p>
+
+      <h2>1. User Accounts</h2>
+      <p>To use most features of FriendSpace, you must register for an account. You agree to:</p>
+      <ul>
+        <li>Provide accurate, current, and complete information.</li>
+        <li>Maintain the security of your password and accept responsibility for all activities that occur under your account.</li>
+        <li>Notify us immediately of any unauthorized use of your account.</li>
+      </ul>
+
+      <h2>2. Community Guidelines & Conduct</h2>
+      <p>FriendSpace is a place for connection, creativity, and positivity. You agree not to engage in any of the following activities:</p>
+      <ul>
+        <li>Posting content that is abusive, threatening, defamatory, obscene, or otherwise objectionable.</li>
+        <li>Harassing other users or promoting violence and hate speech.</li>
+        <li>Impersonating any person or entity, or falsely stating your affiliation.</li>
+        <li>Spamming, phishing, or distributing malware.</li>
+      </ul>
+
+      <h2>3. Content Ownership</h2>
+      <p>You retain all ownership rights to the content you post on FriendSpace. However, by posting content, you grant us a worldwide, non-exclusive, royalty-free license to use, display, reproduce, and distribute your content in connection with operating and improving our services.</p>
+
+      <h2>4. Termination</h2>
+      <p>We reserve the right to suspend or terminate your account at any time, without notice, for conduct that we believe violates these Terms or is harmful to other users of FriendSpace, us, or third parties.</p>
+
+      <h2>5. Changes to Terms</h2>
+      <p>We may modify these Terms at any time. We will provide notice of significant changes by updating the date at the top of this page. Your continued use of the platform after changes have been made constitutes your acceptance of the new Terms.</p>
+
+      <h2>6. Contact Us</h2>
+      <p>If you have any questions about these Terms, please contact us at <strong>support@friendspace.local</strong>.</p>
+    </div>
+  </div>
+</body>
+</html>

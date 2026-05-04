@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FriendSpace</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+  <div class="app">
+    <nav class="navbar">
+      <div class="logo" onclick="showView('feed', document.querySelector('[data-view=feed]'))" style="cursor:pointer;">
+        <svg class="logo-orbit-svg" width="36" height="36" viewBox="0 0 64 64" fill="none" style="flex-shrink:0;">
+          <defs>
+            <radialGradient id="nav-core" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#FF6B9D" />
+              <stop offset="100%" stop-color="#7B2FBE" />
+            </radialGradient>
+            <radialGradient id="nav-dot1" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#FFD700" />
+              <stop offset="100%" stop-color="#FF6B9D" />
+            </radialGradient>
+          </defs>
+          <!-- Orbit ring 1 -->
+          <ellipse cx="32" cy="32" rx="26" ry="11" stroke="#FF6B9D" stroke-width="1.8" stroke-dasharray="5 3"
+            fill="none" opacity="0.65" class="logo-ring-1" />
+          <!-- Orbit ring 2 -->
+          <ellipse cx="32" cy="32" rx="11" ry="26" stroke="#7B2FBE" stroke-width="1.8" stroke-dasharray="5 3"
+            fill="none" opacity="0.55" class="logo-ring-2" />
+          <!-- Center core -->
+          <circle cx="32" cy="32" r="9" fill="url(#nav-core)" />
+          <circle cx="32" cy="32" r="5" fill="white" opacity="0.22" />
+          <!-- Orbiting dots -->
+          <circle cx="58" cy="32" r="4.5" fill="url(#nav-dot1)" class="logo-dot-1" />
+          <circle cx="32" cy="6" r="3.5" fill="#FFD700" class="logo-dot-2" />
+        </svg>
+        <span class="logo-wordmark">
+          <span class="logo-friend">Friend</span><span class="logo-space">Space</span>
+        </span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="search-bar">
+          <span style="color:var(--muted);font-size:13px;">🔍</span>
+          <input type="text" placeholder="Search people...">
+        </div>
+      </div>
+      <div class="nav-links">
+        <button class="nav-btn active" data-view="feed" onclick="showView('feed',this)">🏠 Home</button>
+        <button class="nav-btn" data-view="profile" onclick="showView('profile',this)">😎 Profile</button>
+        <button class="nav-btn notification-dot" data-view="friends" onclick="showView('friends',this)">👥 Friends <span
+            class="notif-count">3</span></button>
+        <button class="nav-btn notification-dot" data-view="messages" onclick="showView('messages',this)">💬 Messages
+          <span class="notif-count">2</span></button>
+        <button class="nav-btn" data-view="groups" onclick="showView('groups',this)">🌐 Groups</button>
+        <button class="nav-btn" data-view="photos" onclick="showView('photos',this)">📷 Photos</button>
+        <button class="nav-btn" data-view="settings" onclick="showView('settings',this)">⚙️ Settings</button>
+        <button class="nav-btn" style="color:var(--danger);" onclick="API.auth.logout()">🚪 Logout</button>
+      </div>
+    </nav>
+
+    <!-- Bottom Navigation for Mobile -->
+    <div class="bottom-nav">
+      <a class="bottom-nav-item active" onclick="showView('feed', null)">
+        <i>🏠</i>
+        <span>Home</span>
+      </a>
+      <a class="bottom-nav-item" onclick="showView('friends', null)">
+        <i>👥</i>
+        <span>Friends</span>
+      </a>
+      <a class="bottom-nav-item" onclick="showView('messages', null)">
+        <i>💬</i>
+        <span>Chat</span>
+      </a>
+      <a class="bottom-nav-item" onclick="showView('groups', null)">
+        <i>🌐</i>
+        <span>Groups</span>
+      </a>
+      <a class="bottom-nav-item" onclick="showView('profile', null)">
+        <i>😎</i>
+        <span>Profile</span>
+      </a>
+    </div>
+
+    <div class="main">
+      <aside class="sidebar">
+        <div class="profile-mini">
+          <div class="avatar-wrap">
+            <div class="avatar" onclick="showView('profile',null)">😎</div>
+            <div class="online-dot"></div>
+          </div>
+          <div class="username">xX_CoolUser_Xx</div>
+          <div class="tagline">"living my best life ✨"</div>
+          <div class="mood">😄 Mood: Hyped</div>
+        </div>
+
+        <div>
+          <div class="sidebar-section">Menu</div>
+          <div class="sidebar-menu">
+            <div class="menu-item active" data-menu="feed" onclick="showView('feed',null);setActive(this)">
+              <span class="menu-icon">🏠</span> News Feed
+            </div>
+            <div class="menu-item" data-menu="profile" onclick="showView('profile',null);setActive(this)">
+              <span class="menu-icon">📋</span> My Profile
+            </div>
+            <div class="menu-item" data-menu="friends" onclick="showView('friends',null);setActive(this)">
+              <span class="menu-icon">👥</span> Friends <span class="badge">3</span>
+            </div>
+            <div class="menu-item" data-menu="messages" onclick="showView('messages',null);setActive(this)">
+              <span class="menu-icon">💬</span> Messages <span class="badge">2</span>
+            </div>
+            <div class="menu-item" data-menu="photos" onclick="showView('photos',null);setActive(this)">
+              <span class="menu-icon">📷</span> Photos
+            </div>
+            <div class="menu-item" data-menu="music" onclick="showView('music',null);setActive(this)">
+              <span class="menu-icon">🎵</span> Music
+            </div>
+            <div class="menu-item" data-menu="groups" onclick="showView('groups',null);setActive(this)">
+              <span class="menu-icon">🌐</span> Groups
+            </div>
+            <div class="menu-item" data-menu="settings" onclick="showView('settings',null);setActive(this)">
+              <span class="menu-icon">⚙️</span> Settings
+            </div>
+            <div class="menu-item" style="color:var(--danger);margin-top:10px;" onclick="API.auth.logout()">
+              <span class="menu-icon">🚪</span> Logout
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="sidebar-section">Online Now</div>
+          <div class="online-list">
+            <div class="online-user" onclick="showView('messages',null)">
+              <div class="online-avatar">🎵</div>
+              <div>
+                <div class="online-name">StarGirl99</div>
+                <div class="online-status">listening to music</div>
+              </div>
+            </div>
+            <div class="online-user" onclick="showView('messages',null)">
+              <div class="online-avatar">🏄</div>
+              <div>
+                <div class="online-name">SurferDude42</div>
+                <div class="online-status">at the beach</div>
+              </div>
+            </div>
+            <div class="online-user" onclick="showView('messages',null)">
+              <div class="online-avatar">🌙</div>
+              <div>
+                <div class="online-name">NightOwl_X</div>
+                <div class="online-status">can't sleep lol</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="marquee-wrap"
+          style="border:1px solid var(--border);border-radius:8px;padding:6px;background:var(--surface2);">
+          <div class="marquee-text">🎵 Now playing: My Chemical Romance - Welcome To The Black Parade 🎵</div>
+        </div>
+      </aside>
+
+      <div class="content">
+        <!-- FEED VIEW -->
+        <div id="view-feed" class="view active">
+          <div class="feed-grid">
+            <div>
+              <div class="status-box">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                  <div style="font-size:24px;">😎</div>
+                  <textarea id="status-textarea" class="status-input" rows="2"
+                    placeholder="What's on your mind? Share with your friends..."></textarea>
+                </div>
+                <div class="status-actions">
+                  <select id="mood-select" class="mood-select" onchange="updateMood(this.value)">
+                    <option value="">😊 Set your mood...</option>
+                    <option value="😄 Hyped">😄 Hyped</option>
+                    <option value="💜 Loved">💜 Loved</option>
+                    <option value="😴 Sleepy">😴 Sleepy</option>
+                    <option value="🎵 Musical">🎵 Musical</option>
+                    <option value="🔥 On Fire">🔥 On Fire</option>
+                    <option value="😎 Cool">😎 Cool</option>
+                  </select>
+                  <div style="display:flex;gap:8px;align-items:center;">
+                    <button class="action-btn" id="attach-photo-btn" type="button">📷 Photo</button>
+                    <button class="post-btn" id="post-btn" type="button">Post ✨</button>
+                  </div>
+                </div>
+              </div>
+
+              <div id="posts-container">
+                <div class="post-card">
+                  <div class="post-header">
+                    <div class="post-avatar" onclick="showView('profile',null)">🎵</div>
+                    <div>
+                      <div class="post-user" onclick="showView('profile',null)">StarGirl99</div>
+                      <div class="post-time">2 minutes ago • 😍 feeling amazing</div>
+                    </div>
+                  </div>
+                  <div class="post-text">just got back from the concert omg it was literally the BEST night of my life!!
+                    ✨💜 MCR never disappoints, I cried three times lmao</div>
+                  <div class="post-song">🎵 Listening to: Helena — My Chemical Romance</div>
+                  <div class="post-actions">
+                    <button class="action-btn" onclick="likePost(this)">💜 Like <span
+                        class="like-count">47</span></button>
+                    <button class="action-btn" onclick="commentPost()">💬 Comment 12</button>
+                    <button class="action-btn">🔗 Share</button>
+                  </div>
+                </div>
+
+                <div class="post-card">
+                  <div class="post-header">
+                    <div class="post-avatar">🏄</div>
+                    <div>
+                      <div class="post-user">SurferDude42</div>
+                      <div class="post-time">23 minutes ago • 😎 feeling stoked</div>
+                    </div>
+                  </div>
+                  <div class="post-text">Beach day was EPIC today. Perfect waves, perfect vibes. Summer is not over
+                    yet!! Who's down for another session this weekend?? 🏄‍♂️🌊☀️</div>
+                  <div class="post-actions">
+                    <button class="action-btn" onclick="likePost(this)">💜 Like <span
+                        class="like-count">23</span></button>
+                    <button class="action-btn">💬 Comment 5</button>
+                    <button class="action-btn">🔗 Share</button>
+                  </div>
+                </div>
+
+                <div class="post-card">
+                  <div class="post-header">
+                    <div class="post-avatar">🌙</div>
+                    <div>
+                      <div class="post-user">NightOwl_X</div>
+                      <div class="post-time">1 hour ago • 😔 feeling contemplative</div>
+                    </div>
+                  </div>
+                  <div class="post-text">it's 3am and i'm listening to old songs and thinking about everything and
+                    nothing at once. do you ever just... feel everything at the same time? 🌙</div>
+                  <div class="post-song">🎵 Listening to: The Reason — Hoobastank</div>
+                  <div class="post-actions">
+                    <button class="action-btn liked" onclick="likePost(this)">💜 Like <span
+                        class="like-count">89</span></button>
+                    <button class="action-btn">💬 Comment 34</button>
+                    <button class="action-btn">🔗 Share</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="top8-grid-col">
+              <!-- Top 8 -->
+              <div class="sidebar-widget">
+                <div class="widget-title">⭐ My Top 8</div>
+                <div class="top8-grid" id="top8-grid">
+                  <div class="top8-item" onclick="showView('profile',null)">
+                    <div class="top8-avatar" style="background:linear-gradient(135deg,#7B2FBE,#FF6B9D);">🎵</div>
+                    <div class="top8-name">StarGirl99</div>
+                  </div>
+                  <div class="top8-item">
+                    <div class="top8-avatar" style="background:linear-gradient(135deg,#FF6B9D,#FFD700);">🏄</div>
+                    <div class="top8-name">SurferDude42</div>
+                  </div>
+                  <div class="top8-item">
+                    <div class="top8-avatar" style="background:linear-gradient(135deg,#1a0a2e,#7B2FBE);">🌙</div>
+                    <div class="top8-name">NightOwl_X</div>
+                  </div>
+                  <div class="top8-item">
+                    <div class="top8-avatar" style="background:linear-gradient(135deg,#FFD700,#FF6B9D);">🦋</div>
+                    <div class="top8-name">butterfly_grl</div>
+                  </div>
+                  <div class="top8-item">
+                    <div class="top8-avatar" style="background:linear-gradient(135deg,#FF6B9D,#4a0080);">🎸</div>
+                    <div class="top8-name">RockGod2005</div>
+                  </div>
+                  <div class="top8-item">
+                    <div class="top8-avatar" style="background:linear-gradient(135deg,#4a0080,#1a0a2e);">🌈</div>
+                    <div class="top8-name">rainbow_kid</div>
+                  </div>
+                  <div class="top8-item">
+                    <div class="top8-avatar" style="background:linear-gradient(135deg,#FFD700,#7B2FBE);">😸</div>
+                    <div class="top8-name">kittycat_xx</div>
+                  </div>
+                  <div class="top8-item">
+                    <div class="top8-avatar" style="background:linear-gradient(135deg,#7B2FBE,#FFD700);">⚡</div>
+                    <div class="top8-name">ThunderB0lt</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Now Playing -->
+              <div class="sidebar-widget feed-now-playing">
+                <div class="widget-title">🎵 Now Playing</div>
+                <div class="fnp-inner">
+                  <div class="fnp-art">🎸</div>
+                  <div class="fnp-info">
+                    <div class="fnp-title">Welcome To The Black Parade</div>
+                    <div class="fnp-artist">My Chemical Romance</div>
+                    <div class="fnp-bar">
+                      <div class="fnp-fill"></div>
+                    </div>
+                  </div>
+                  <button class="fnp-play"
+                    onclick="showView('music', document.querySelector('[data-view=music]'))">▶</button>
+                </div>
+              </div>
+
+              <!-- Daily Vibe -->
+              <div class="sidebar-widget feed-daily-vibe">
+                <div class="widget-title">✨ Daily Vibe</div>
+                <div class="vibe-quote" id="vibe-quote">"Not all those who wander are lost."</div>
+                <div class="vibe-author">— J.R.R. Tolkien</div>
+                <button class="vibe-refresh" onclick="FeedSidebar.nextVibe()">🔄 New vibe</button>
+              </div>
+
+              <!-- Trending -->
+              <div class="sidebar-widget">
+                <div class="widget-title">🔥 Trending Now</div>
+                <div class="feed-trending">
+                  <div class="trend-item" onclick="FeedSidebar.clickTrend(this)">#MCRisBack <span
+                      class="trend-count">2.4k</span></div>
+                  <div class="trend-item" onclick="FeedSidebar.clickTrend(this)">#BeachVibes <span
+                      class="trend-count">1.1k</span></div>
+                  <div class="trend-item" onclick="FeedSidebar.clickTrend(this)">#NightThoughts <span
+                      class="trend-count">893</span></div>
+                  <div class="trend-item" onclick="FeedSidebar.clickTrend(this)">#FriendRequest <span
+                      class="trend-count">641</span></div>
+                  <div class="trend-item" onclick="FeedSidebar.clickTrend(this)">#EmoRevival <span
+                      class="trend-count">508</span></div>
+                </div>
+              </div>
+
+              <!-- People You May Know -->
+              <div class="sidebar-widget">
+                <div class="widget-title">👥 People You May Know</div>
+                <div id="suggested-friends" style="display:flex;flex-direction:column;gap:10px;"></div>
+              </div>
+
+              <!-- Active Groups -->
+              <div class="sidebar-widget">
+                <div class="widget-title">🌐 Active Groups</div>
+                <div class="feed-groups">
+                  <div class="feed-group-item" onclick="showView('feed',null)">
+                    <div class="feed-group-av" style="background:linear-gradient(135deg,#4a0080,#FF6B9D)">🎸</div>
+                    <div class="feed-group-info">
+                      <div class="feed-group-name">MCR Fan Club ✨</div>
+                      <div class="feed-group-stat">4,821 members · 12 new posts</div>
+                    </div>
+                  </div>
+                  <div class="feed-group-item" onclick="showView('feed',null)">
+                    <div class="feed-group-av" style="background:linear-gradient(135deg,#0088cc,#00ccaa)">🏄</div>
+                    <div class="feed-group-info">
+                      <div class="feed-group-name">Sydney Beach Crew 🌊</div>
+                      <div class="feed-group-stat">892 members · 3 new posts</div>
+                    </div>
+                  </div>
+                  <div class="feed-group-item" onclick="showView('feed',null)">
+                    <div class="feed-group-av" style="background:linear-gradient(135deg,#1a0a2e,#7B2FBE)">🌙</div>
+                    <div class="feed-group-info">
+                      <div class="feed-group-name">Night Owls Club 🌙</div>
+                      <div class="feed-group-stat">3,344 members · 7 new posts</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Footer links -->
+              <div class="feed-footer">
+                <a href="terms.html" target="_blank">Terms</a> · <a href="privacy.html" target="_blank">Privacy</a> · <a href="help.html" target="_blank">Help</a>
+                <div style="margin-top:10px; display:flex; align-items:center; justify-content:center; gap:6px; color:#5a3a8a; font-size:11px;">
+                  <svg width="20" height="20" viewBox="0 0 64 64" fill="none" style="filter: drop-shadow(0 0 3px rgba(255, 107, 157, 0.5));">
+                    <defs>
+                      <radialGradient id="ft-nav-core" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#FF6B9D" />
+                        <stop offset="100%" stop-color="#7B2FBE" />
+                      </radialGradient>
+                    </defs>
+                    <ellipse cx="32" cy="32" rx="26" ry="11" stroke="#FF6B9D" stroke-width="2" stroke-dasharray="5 3" fill="none" opacity="0.65" />
+                    <ellipse cx="32" cy="32" rx="11" ry="26" stroke="#7B2FBE" stroke-width="2" stroke-dasharray="5 3" fill="none" opacity="0.55" />
+                    <circle cx="32" cy="32" r="9" fill="url(#ft-nav-core)" />
+                  </svg>
+                  <span style="font-family:'Righteous', cursive; letter-spacing:0.5px;">FriendSpace © 2026</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROFILE VIEW — rendered by Profile.init() -->
+        <div id="view-profile" class="view"></div>
+
+        <!-- FRIENDS VIEW -->
+        <div id="view-friends" class="view">
+          <div style="padding:0 0 16px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-family:'Righteous',cursive;font-size:20px;color:var(--accent);">👥 My Friends</div>
+              <div style="font-size:13px;color:var(--muted);">284 friends total • 3 new requests</div>
+            </div>
+          </div>
+
+          <div
+            style="background:var(--surface);border:1px solid var(--secondary);border-radius:12px;padding:14px;margin-bottom:16px;">
+            <div style="font-weight:800;font-size:14px;color:var(--secondary);margin-bottom:10px;">🔔 Friend Requests
+              (3)</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div
+                style="display:flex;align-items:center;gap:10px;padding:8px;background:var(--surface2);border-radius:8px;">
+                <div style="font-size:22px;">🦋</div>
+                <div style="flex:1;">
+                  <div style="font-weight:800;font-size:13px;color:var(--accent);">butterfly_grl</div>
+                  <div style="font-size:11px;color:var(--muted);">4 mutual friends</div>
+                </div>
+                <button onclick="acceptFriend(this)"
+                  style="background:var(--primary);border:none;color:#fff;border-radius:8px;padding:5px 12px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;">Accept</button>
+                <button onclick="this.closest('div.request-row, div').parentElement.style.display='none'"
+                  style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:5px 12px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:12px;">Decline</button>
+              </div>
+              <div
+                style="display:flex;align-items:center;gap:10px;padding:8px;background:var(--surface2);border-radius:8px;">
+                <div style="font-size:22px;">🎸</div>
+                <div style="flex:1;">
+                  <div style="font-weight:800;font-size:13px;color:var(--accent);">RockGod2005</div>
+                  <div style="font-size:11px;color:var(--muted);">2 mutual friends</div>
+                </div>
+                <button onclick="acceptFriend(this)"
+                  style="background:var(--primary);border:none;color:#fff;border-radius:8px;padding:5px 12px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;">Accept</button>
+                <button
+                  style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:5px 12px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:12px;">Decline</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="friends-grid">
+            <div class="friend-card">
+              <div class="friend-av">🎵</div>
+              <div class="friend-name">StarGirl99</div>
+              <div class="friend-mutual">14 mutual</div>
+              <div class="friend-status">🟢 online now</div>
+            </div>
+            <div class="friend-card">
+              <div class="friend-av">🏄</div>
+              <div class="friend-name">SurferDude42</div>
+              <div class="friend-mutual">8 mutual</div>
+              <div class="friend-status">🟢 online now</div>
+            </div>
+            <div class="friend-card">
+              <div class="friend-av">🌙</div>
+              <div class="friend-name">NightOwl_X</div>
+              <div class="friend-mutual">22 mutual</div>
+              <div class="friend-status">🟢 online now</div>
+            </div>
+            <div class="friend-card">
+              <div class="friend-av">⚡</div>
+              <div class="friend-name">ThunderB0lt</div>
+              <div class="friend-mutual">6 mutual</div>
+              <div class="friend-status">🟡 away</div>
+            </div>
+            <div class="friend-card">
+              <div class="friend-av">🌈</div>
+              <div class="friend-name">rainbow_kid</div>
+              <div class="friend-mutual">11 mutual</div>
+              <div class="friend-status">🔴 offline</div>
+            </div>
+            <div class="friend-card">
+              <div class="friend-av">😸</div>
+              <div class="friend-name">kittycat_xx</div>
+              <div class="friend-mutual">3 mutual</div>
+              <div class="friend-status">🔴 offline</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MESSAGES VIEW — rendered by Messages.init() -->
+        <div id="view-messages" class="view" style="padding:0;"></div>
+
+        <!-- GROUPS VIEW — rendered by Groups.init() -->
+        <div id="view-groups" class="view" style="padding:0;"></div>
+
+        <div id="view-photos" class="view">
+          <div class="profile-view">
+            <div class="photos-header">
+              <div>
+                <div class="widget-title">📷 Photo Gallery</div>
+                <div style="font-size:13px;color:var(--muted);margin-top:4px;">Upload, browse and tap photos to view
+                  them larger.</div>
+              </div>
+            </div>
+            <div id="upload-zone" class="photos-upload-zone">
+              <div class="upload-icon">📷</div>
+              <div class="upload-hint">Click or drag images here to upload. <span>Supports multiple files.</span></div>
+            </div>
+            <div id="photos-grid" class="photos-grid"></div>
+          </div>
+        </div>
+
+        <div id="view-music" class="view">
+          <div class="music-view">
+            <audio id="audio-player" preload="metadata"></audio>
+            <div class="now-playing-card">
+              <div class="np-art" id="np-art">🎵</div>
+              <div class="np-info">
+                <div class="np-title" id="np-title">Welcome To The Black Parade</div>
+                <div class="np-artist" id="np-artist">My Chemical Romance</div>
+                <div class="np-progress-wrap">
+                  <div id="np-progress-bar" class="np-progress-bar">
+                    <div id="np-progress-fill" class="np-progress-fill"></div>
+                  </div>
+                  <div class="np-time">
+                    <span id="np-elapsed">1:49</span>
+                    <span id="np-total">5:11</span>
+                  </div>
+                </div>
+                <div class="np-controls">
+                  <button class="ctrl-btn" id="btn-prev">⏮</button>
+                  <button class="ctrl-btn play-pause" id="btn-play-pause">▶</button>
+                  <button class="ctrl-btn" id="btn-next">⏭</button>
+                  <button class="ctrl-btn" id="btn-shuffle">🔀</button>
+                  <button class="ctrl-btn" id="btn-repeat">🔁</button>
+                  <div class="volume-wrap">
+                    <span>🔊</span>
+                    <input type="range" id="volume-slider" min="0" max="100">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="music-tools">
+              <input type="file" id="music-file-input" accept="audio/*" class="input" />
+              <input type="text" id="music-url-input" class="input" placeholder="Paste audio URL here" />
+              <button class="btn btn-primary" id="btn-add-url" type="button">Add URL</button>
+            </div>
+            <div class="playlist-card">
+              <div class="playlist-header">
+                <div class="widget-title">🎶 Playlist</div>
+              </div>
+              <div id="playlist-tracks"></div>
+            </div>
+          </div>
+        </div>
+        <!-- SETTINGS VIEW -->
+        <div id="view-settings" class="view">
+          <!-- Rendered by Settings.renderView() -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="lightbox" class="lightbox" onclick="Photos.closeLightbox()">
+    <button class="lightbox-close" onclick="event.stopPropagation();Photos.closeLightbox()">×</button>
+    <img id="lightbox-img" class="lightbox-img" alt="Lightbox image">
+    <div id="lightbox-caption" class="lightbox-caption" style="color:#fff;margin-top:14px;text-align:center;"></div>
+  </div>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="js/api-client.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/feed.js"></script>
+  <script src="js/photos.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/profile.js"></script>
+  <script src="js/messages.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/groups.js"></script>
+  <script src="js/friends.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>
