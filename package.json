@@ -1,7 +1,7 @@
 {
-  "name": "friendspace-backend",
+  "name": "KipinQ-backend",
   "version": "1.0.0",
-  "description": "FriendSpace – Node.js backend with Auth, SQLite, WebSockets",
+  "description": "KipinQ – Node.js backend with Auth, SQLite, WebSockets",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

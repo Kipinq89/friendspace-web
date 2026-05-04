@@ -1,5 +1,5 @@
 /**
- * FriendSpace — App glue logic
+ * KipinQ — App glue logic
  * Exposes small global helpers and initializes page modules.
  */
 

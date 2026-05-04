@@ -1,5 +1,5 @@
 /**
- * FriendSpace — Data & State
+ * KipinQ — Data & State
  * Central store for all app data and state management.
  */
 

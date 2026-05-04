@@ -1,5 +1,5 @@
 /**
- * FriendSpace — Backend Server
+ * KipinQ — Backend Server
  * Express REST API + Socket.IO WebSocket server
  *
  * Start: node server.js  (or: npm run dev for auto-reload)
@@ -86,7 +86,7 @@ require('./socket/handler')(io);
 server.listen(PORT, () => {
   console.log(`
 ╔═══════════════════════════════════════╗
-║   ✨ FriendSpace Backend Running ✨   ║
+║   ✨ KipinQ Backend Running ✨   ║
 ║   http://localhost:${PORT}               ║
 ║   ENV: ${process.env.NODE_ENV || 'development'}                   ║
 ╚═══════════════════════════════════════╝

@@ -1,5 +1,5 @@
 /**
- * FriendSpace — Settings Module
+ * KipinQ — Settings Module
  * Handles: theme, appearance, privacy, notifications, account preferences.
  * All settings are persisted to localStorage under the key 'fs_settings'.
  */
@@ -45,76 +45,274 @@ const Settings = {
   // Loaded/active settings
   current: {},
 
-  // Theme presets
+  // Theme categories for grouping in UI
+  themeCategories: {
+    'dark':  { label: '🌙 Dark',   themes: ['cosmic-purple','midnight-blue','obsidian','amoled'] },
+    'neon':  { label: '⚡ Neon',   themes: ['cyber-punk','neon-tokyo','aurora','neon-lime'] },
+    'soft':  { label: '🌸 Soft',   themes: ['rose-gold','peach-cream','lavender-dream','ocean-mist'] },
+    'light': { label: '☀️ Light',  themes: ['clean-white','morning-sky'] },
+  },
+
+  // Theme presets — 14 total
   themes: {
-    'purple-night': {
-      label: '💜 Purple Night',
+
+    /* ── DARK ── */
+    'cosmic-purple': {
+      label: 'Cosmic Purple',
+      emoji: '💜',
+      desc:  'Deep space vibes',
       vars: {
-        '--primary':   '#7B2FBE',
-        '--secondary': '#FF6B9D',
-        '--accent':    '#FFD700',
-        '--bg':        '#1a0a2e',
-        '--surface':   '#2d1b4e',
-        '--surface2':  '#3d2860',
-        '--text':      '#f0e6ff',
-        '--muted':     '#a98bc8',
-        '--border':    '#5a3a8a',
+        '--primary':   '#8B35D6',
+        '--secondary': '#FF4D94',
+        '--accent':    '#FFCC00',
+        '--bg':        '#0f0720',
+        '--surface':   '#1e1040',
+        '--surface2':  '#2a1a56',
+        '--surface3':  '#341f68',
+        '--text':      '#eeddff',
+        '--muted':     '#9b7cc4',
+        '--border':    '#4a3280',
+        '--online':    '#00FF88',
       },
     },
     'midnight-blue': {
-      label: '🌊 Midnight Blue',
+      label: 'Midnight Blue',
+      emoji: '🌊',
+      desc:  'Ocean depths',
       vars: {
-        '--primary':   '#1565C0',
-        '--secondary': '#00BCD4',
-        '--accent':    '#FFD700',
-        '--bg':        '#050e1a',
-        '--surface':   '#0d1f33',
-        '--surface2':  '#162a44',
-        '--text':      '#e0f0ff',
-        '--muted':     '#7bafd4',
-        '--border':    '#1e3a5a',
+        '--primary':   '#2979FF',
+        '--secondary': '#00E5FF',
+        '--accent':    '#FFD740',
+        '--bg':        '#03080f',
+        '--surface':   '#071424',
+        '--surface2':  '#0d1e35',
+        '--surface3':  '#122846',
+        '--text':      '#ddeeff',
+        '--muted':     '#6b9fc4',
+        '--border':    '#1a3a5c',
+        '--online':    '#00E5FF',
       },
     },
-    'rose-gold': {
-      label: '🌸 Rose Gold',
+    'obsidian': {
+      label: 'Obsidian',
+      emoji: '🖤',
+      desc:  'Pure dark elegance',
       vars: {
-        '--primary':   '#c0396e',
+        '--primary':   '#BB86FC',
+        '--secondary': '#03DAC6',
+        '--accent':    '#CF6679',
+        '--bg':        '#060606',
+        '--surface':   '#121212',
+        '--surface2':  '#1e1e1e',
+        '--surface3':  '#2a2a2a',
+        '--text':      '#e0e0e0',
+        '--muted':     '#888888',
+        '--border':    '#333333',
+        '--online':    '#03DAC6',
+      },
+    },
+    'amoled': {
+      label: 'AMOLED Black',
+      emoji: '⬛',
+      desc:  'True black, saves battery',
+      vars: {
+        '--primary':   '#E040FB',
+        '--secondary': '#FF6D00',
+        '--accent':    '#FFEA00',
+        '--bg':        '#000000',
+        '--surface':   '#0a0a0a',
+        '--surface2':  '#141414',
+        '--surface3':  '#1e1e1e',
+        '--text':      '#ffffff',
+        '--muted':     '#777777',
+        '--border':    '#2a2a2a',
+        '--online':    '#00E676',
+      },
+    },
+
+    /* ── NEON ── */
+    'cyber-punk': {
+      label: 'Cyber Punk',
+      emoji: '⚡',
+      desc:  'Neon city nights',
+      vars: {
+        '--primary':   '#F500FF',
+        '--secondary': '#00FFC8',
+        '--accent':    '#FFE600',
+        '--bg':        '#0d0015',
+        '--surface':   '#160028',
+        '--surface2':  '#200038',
+        '--surface3':  '#2a0050',
+        '--text':      '#ffe0ff',
+        '--muted':     '#aa80cc',
+        '--border':    '#5a0090',
+        '--online':    '#00FFC8',
+      },
+    },
+    'neon-tokyo': {
+      label: 'Neon Tokyo',
+      emoji: '🗼',
+      desc:  'Akihabara glow',
+      vars: {
+        '--primary':   '#FF0066',
+        '--secondary': '#0099FF',
+        '--accent':    '#FF9900',
+        '--bg':        '#06001a',
+        '--surface':   '#0f0030',
+        '--surface2':  '#180040',
+        '--surface3':  '#220055',
+        '--text':      '#ffeeff',
+        '--muted':     '#9966bb',
+        '--border':    '#440088',
+        '--online':    '#00FF66',
+      },
+    },
+    'aurora': {
+      label: 'Aurora',
+      emoji: '🌌',
+      desc:  'Northern lights',
+      vars: {
+        '--primary':   '#00E5FF',
+        '--secondary': '#76FF03',
+        '--accent':    '#FF6D00',
+        '--bg':        '#000d1a',
+        '--surface':   '#001428',
+        '--surface2':  '#001e3c',
+        '--surface3':  '#002a50',
+        '--text':      '#e0fff8',
+        '--muted':     '#5599aa',
+        '--border':    '#003355',
+        '--online':    '#76FF03',
+      },
+    },
+    'neon-lime': {
+      label: 'Neon Lime',
+      emoji: '💚',
+      desc:  'Matrix terminal',
+      vars: {
+        '--primary':   '#39FF14',
+        '--secondary': '#00FFCC',
+        '--accent':    '#FFFF00',
+        '--bg':        '#010a01',
+        '--surface':   '#051505',
+        '--surface2':  '#082008',
+        '--surface3':  '#0a2a0a',
+        '--text':      '#e0ffe0',
+        '--muted':     '#50a050',
+        '--border':    '#1a4a1a',
+        '--online':    '#39FF14',
+      },
+    },
+
+    /* ── SOFT ── */
+    'rose-gold': {
+      label: 'Rose Gold',
+      emoji: '🌸',
+      desc:  'Warm luxury tones',
+      vars: {
+        '--primary':   '#d4537e',
         '--secondary': '#e8a87c',
         '--accent':    '#f6d365',
         '--bg':        '#1c0a12',
         '--surface':   '#2e1220',
         '--surface2':  '#3e1a2c',
+        '--surface3':  '#4e2238',
         '--text':      '#ffe4ef',
         '--muted':     '#c48fa8',
         '--border':    '#6b2e46',
+        '--online':    '#ff9eb5',
       },
     },
-    'forest': {
-      label: '🌿 Forest Dark',
+    'peach-cream': {
+      label: 'Peach Cream',
+      emoji: '🍑',
+      desc:  'Warm & cosy',
       vars: {
-        '--primary':   '#2e7d32',
-        '--secondary': '#66bb6a',
-        '--accent':    '#FFD700',
-        '--bg':        '#071a09',
-        '--surface':   '#0f2d12',
-        '--surface2':  '#173d1a',
-        '--text':      '#e0ffe4',
-        '--muted':     '#7ab87e',
-        '--border':    '#2a5c2e',
+        '--primary':   '#E07040',
+        '--secondary': '#F0A080',
+        '--accent':    '#FFD080',
+        '--bg':        '#1a0e08',
+        '--surface':   '#2a1810',
+        '--surface2':  '#3a2218',
+        '--surface3':  '#4a2c20',
+        '--text':      '#fff0e8',
+        '--muted':     '#b08070',
+        '--border':    '#5a3020',
+        '--online':    '#90EE90',
       },
     },
-    'light': {
-      label: '☀️ Light Mode',
+    'lavender-dream': {
+      label: 'Lavender',
+      emoji: '🌷',
+      desc:  'Soft pastel calm',
       vars: {
-        '--primary':   '#7B2FBE',
+        '--primary':   '#9B59B6',
+        '--secondary': '#85C1E9',
+        '--accent':    '#F8C471',
+        '--bg':        '#140e1e',
+        '--surface':   '#201830',
+        '--surface2':  '#2e2240',
+        '--surface3':  '#3c2c50',
+        '--text':      '#f0e8ff',
+        '--muted':     '#9b88bb',
+        '--border':    '#4a3870',
+        '--online':    '#85C1E9',
+      },
+    },
+    'ocean-mist': {
+      label: 'Ocean Mist',
+      emoji: '🌊',
+      desc:  'Sea breeze serenity',
+      vars: {
+        '--primary':   '#2196F3',
+        '--secondary': '#26C6DA',
+        '--accent':    '#80DEEA',
+        '--bg':        '#030e18',
+        '--surface':   '#081828',
+        '--surface2':  '#0e2238',
+        '--surface3':  '#142c48',
+        '--text':      '#e0f4ff',
+        '--muted':     '#6090b0',
+        '--border':    '#1a3a5a',
+        '--online':    '#26C6DA',
+      },
+    },
+
+    /* ── LIGHT ── */
+    'clean-white': {
+      label: 'Clean White',
+      emoji: '☀️',
+      desc:  'Minimal & bright',
+      vars: {
+        '--primary':   '#6200EE',
         '--secondary': '#e91e8c',
         '--accent':    '#f57c00',
-        '--bg':        '#f4f0fb',
+        '--bg':        '#f5f5f5',
         '--surface':   '#ffffff',
         '--surface2':  '#ede7f6',
-        '--text':      '#1a0a2e',
+        '--surface3':  '#e8e0f5',
+        '--text':      '#1a1a2e',
         '--muted':     '#7b5fa0',
         '--border':    '#d1c4e9',
+        '--online':    '#00C853',
+      },
+    },
+    'morning-sky': {
+      label: 'Morning Sky',
+      emoji: '🌤️',
+      desc:  'Fresh blue light',
+      vars: {
+        '--primary':   '#0288D1',
+        '--secondary': '#26C6DA',
+        '--accent':    '#FF8F00',
+        '--bg':        '#e8f4f8',
+        '--surface':   '#ffffff',
+        '--surface2':  '#deedf5',
+        '--surface3':  '#cce3f0',
+        '--text':      '#01204e',
+        '--muted':     '#5588aa',
+        '--border':    '#a0c8e0',
+        '--online':    '#00C853',
       },
     },
   },
@@ -225,7 +423,7 @@ const Settings = {
       <div class="settings-page">
         <div class="settings-header">
           <div class="settings-title">⚙️ Settings</div>
-          <div class="settings-subtitle">Customise your FriendSpace experience</div>
+          <div class="settings-subtitle">Customise your KipinQ experience</div>
         </div>
 
         <div class="settings-grid">
@@ -476,9 +674,9 @@ const Settings = {
 
           <!-- ── ABOUT ── -->
           <div class="settings-card settings-about-card">
-            <div class="settings-card-title">✨ About FriendSpace</div>
+            <div class="settings-card-title">✨ About KipinQ</div>
             <div class="settings-about">
-              <div class="settings-about-logo">✨ FriendSpace</div>
+              <div class="settings-about-logo">✨ KipinQ</div>
               <div class="settings-about-ver">Version 1.0.0 · Made with 💜</div>
               <div class="settings-about-tagline">Your little corner of the internet.</div>
               <div class="settings-about-links">
@@ -501,23 +699,43 @@ const Settings = {
 
   _buildThemeGrid() {
     const s = this.current;
-    return Object.entries(this.themes).map(([key, theme]) => {
-      const vars = theme.vars;
-      return `
-        <button class="theme-chip${s.theme === key ? ' active' : ''}" data-theme="${key}"
-          style="--chip-bg:${vars['--bg']};--chip-pri:${vars['--primary']};--chip-sec:${vars['--secondary']};--chip-acc:${vars['--accent']};"
-          onclick="Settings.pickTheme('${key}', this)" title="${theme.label}">
-          <span class="theme-swatch">
-            <span style="background:${vars['--bg']}"></span>
-            <span style="background:${vars['--primary']}"></span>
-            <span style="background:${vars['--secondary']}"></span>
-            <span style="background:${vars['--accent']}"></span>
-          </span>
-          <span class="theme-chip-label">${theme.label}</span>
-          <span class="theme-chip-check">✓</span>
-        </button>
-      `;
-    }).join('');
+    let html = '';
+    Object.entries(this.themeCategories).forEach(([catKey, cat]) => {
+      html += `<div class="theme-category-label">${cat.label}</div>
+               <div class="theme-category-row">`;
+      cat.themes.forEach(key => {
+        const theme = this.themes[key];
+        if (!theme) return;
+        const v = theme.vars;
+        const isActive = s.theme === key;
+        html += `
+          <button class="theme-card${isActive ? ' active' : ''}" data-theme="${key}"
+            onclick="Settings.pickTheme('${key}', this)" title="${theme.label} — ${theme.desc}">
+            <div class="theme-card-preview" style="background:${v['--bg']};">
+              <div class="tcp-bar" style="background:${v['--surface2']};"></div>
+              <div class="tcp-post" style="background:${v['--surface']}; border-color:${v['--border']};">
+                <div class="tcp-avatar" style="background:${v['--primary']};"></div>
+                <div class="tcp-lines">
+                  <div class="tcp-line tcp-l1" style="background:${v['--text']};"></div>
+                  <div class="tcp-line tcp-l2" style="background:${v['--muted']};"></div>
+                </div>
+              </div>
+              <div class="tcp-btn" style="background:${v['--secondary']};"></div>
+              <div class="tcp-dot" style="background:${v['--online']};box-shadow:0 0 4px ${v['--online']};"></div>
+            </div>
+            <div class="theme-card-footer" style="background:${v['--surface']}; border-color:${v['--border']};">
+              <span class="theme-card-emoji">${theme.emoji}</span>
+              <div class="theme-card-info">
+                <div class="theme-card-name" style="color:${v['--text']};">${theme.label}</div>
+                <div class="theme-card-desc" style="color:${v['--muted']};">${theme.desc}</div>
+              </div>
+              <span class="theme-card-check" style="color:${v['--secondary']};">${isActive ? '✓' : ''}</span>
+            </div>
+          </button>`;
+      });
+      html += `</div>`;
+    });
+    return html;
   },
 
   _bindThemeGrid() {
@@ -548,7 +766,7 @@ const Settings = {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
-    a.href = url; a.download = 'friendspace-data.json'; a.click();
+    a.href = url; a.download = 'KipinQ-data.json'; a.click();
     URL.revokeObjectURL(url);
     if (typeof UI !== 'undefined') UI.toast('Data exported! 📦', 'success');
   },

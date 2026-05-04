@@ -1,5 +1,5 @@
 /**
- * FriendSpace — Auth Middleware
+ * KipinQ — Auth Middleware
  * Verifies JWT token from Authorization header.
  * Attaches req.user = { id, username, handle } on success.
  */
@@ -7,7 +7,7 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-const SECRET = process.env.JWT_SECRET || 'friendspace_secret';
+const SECRET = process.env.JWT_SECRET || 'KipinQ_secret';
 
 /**
  * requireAuth — protects a route. Returns 401 if no/bad token.

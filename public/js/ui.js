@@ -1,5 +1,5 @@
 /**
- * FriendSpace — UI Utilities
+ * KipinQ — UI Utilities
  * Reusable DOM helpers, element builders, and small utilities.
  */
 

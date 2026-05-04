@@ -1,5 +1,5 @@
 /**
- * FriendSpace — Friends Module
+ * KipinQ — Friends Module
  */
 
 const Friends = {

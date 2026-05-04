@@ -1,5 +1,5 @@
 /**
- * FriendSpace — Photos Module
+ * KipinQ — Photos Module
  * Handles: photo upload (drag & drop + click), gallery grid, lightbox.
  */
 

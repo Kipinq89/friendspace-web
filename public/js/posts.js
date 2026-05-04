@@ -1,5 +1,5 @@
 /**
- * FriendSpace — Posts Routes
+ * KipinQ — Posts Routes
  *
  * GET    /api/posts          — get feed (friends + own posts)
  * POST   /api/posts          — create post

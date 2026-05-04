@@ -1,5 +1,5 @@
 /**
- * FriendSpace — Groups Routes
+ * KipinQ — Groups Routes
  *
  * GET    /api/groups              — all groups (with joined flag)
  * POST   /api/groups              — create group

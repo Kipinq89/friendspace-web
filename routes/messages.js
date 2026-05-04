@@ -1,5 +1,5 @@
 /**
- * FriendSpace — Messages Routes (REST)
+ * KipinQ — Messages Routes (REST)
  * Real-time delivery is via Socket.IO (see socket/handler.js).
  * REST endpoints handle history fetch + read receipts.
  *

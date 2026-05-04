@@ -1,5 +1,5 @@
 /**
- * FriendSpace — Groups Module
+ * KipinQ — Groups Module
  */
 
 const Groups = {

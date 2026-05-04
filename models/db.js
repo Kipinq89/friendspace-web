@@ -1,5 +1,5 @@
 /**
- * FriendSpace — Database Layer (SQLite via better-sqlite3)
+ * KipinQ — Database Layer (SQLite via better-sqlite3)
  *
  * Tables:
  *   users           — registered accounts
@@ -18,7 +18,7 @@ const Database = require('better-sqlite3');
 const path     = require('path');
 require('dotenv').config();
 
-const DB_PATH = process.env.DB_PATH || './friendspace.db';
+const DB_PATH = process.env.DB_PATH || './KipinQ.db';
 const db      = new Database(path.resolve(DB_PATH));
 
 // Enable WAL mode for better concurrency

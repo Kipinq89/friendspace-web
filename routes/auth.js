@@ -1,5 +1,5 @@
 /**
- * FriendSpace — Auth Routes
+ * KipinQ — Auth Routes
  *
  * POST /api/auth/register  — create account
  * POST /api/auth/login     — get JWT token
@@ -54,7 +54,7 @@ router.post('/register', (req, res) => {
   const token = signToken(user);
 
   return res.status(201).json({
-    message: 'Account created! Welcome to FriendSpace ✨',
+    message: 'Account created! Welcome to KipinQ ✨',
     token,
     user: sanitizeUser(user),
   });

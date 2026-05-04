@@ -1,5 +1,5 @@
 /**
- * FriendSpace — Socket.IO Real-Time Handler
+ * KipinQ — Socket.IO Real-Time Handler
  *
  * Events emitted BY client → handled here:
  *   authenticate          { token }          — log in over WS
@@ -26,7 +26,7 @@ const { v4: uuid } = require('uuid');
 const db       = require('../models/db');
 require('dotenv').config();
 
-const SECRET = process.env.JWT_SECRET || 'friendspace_secret';
+const SECRET = process.env.JWT_SECRET || 'KipinQ_secret';
 
 // Map: userId → Set of socket IDs (one user can have multiple tabs)
 const onlineUsers = new Map();

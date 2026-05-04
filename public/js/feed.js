@@ -1,5 +1,5 @@
 /**
- * FriendSpace — Feed Module
+ * KipinQ — Feed Module
  * Handles: rendering posts, composing new posts, likes, sidebar widgets.
  */
 

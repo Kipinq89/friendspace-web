@@ -1,5 +1,5 @@
 /**
- * FriendSpace — Music Player Module
+ * KipinQ — Music Player Module
  * Handles: now playing display, play/pause, track switching,
  *          progress updates, shuffle, repeat, volume, upload/URL support.
  */

@@ -1,5 +1,5 @@
 /**
- * FriendSpace — Profile Module
+ * KipinQ — Profile Module
  * Handles: render profile, edit profile, profile tabs (Posts/About/Photos/Top8),
  *          profile comments, profile song, banner customisation, badges.
  *

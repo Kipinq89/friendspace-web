@@ -1,5 +1,5 @@
 /**
- * FriendSpace — Messages Module
+ * KipinQ — Messages Module
  */
 
 const Messages = {

@@ -1,5 +1,5 @@
 /**
- * FriendSpace — API Client (frontend)
+ * KipinQ — API Client (frontend)
  * Drop this file into your js/ folder and load it before other modules.
  *
  * Usage:
