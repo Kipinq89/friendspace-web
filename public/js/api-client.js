@@ -11,7 +11,7 @@
 const API = (() => {
 
   // ── Config ────────────────────────────────
-  const isLocalHost = window.location.hostname === 'localhost' || window.location.protocol === 'file:';
+  const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
   const BASE_URL    = isLocalHost ? 'http://localhost:3000/api' : `${window.location.origin}/api`;
   const SOCKET_URL  = isLocalHost ? 'http://localhost:3000'     : window.location.origin;
 
