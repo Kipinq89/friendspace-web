@@ -10,17 +10,23 @@ const express      = require('express');
 const http         = require('http');
 const { Server }   = require('socket.io');
 const cors         = require('cors');
+const helmet       = require('helmet');
+const rateLimit    = require('express-rate-limit');
 const path         = require('path');
 const fs           = require('fs');
+
+const CLIENT_URL = process.env.CLIENT_URL || '*';
+const CORS_ORIGIN = CLIENT_URL === '*' ? true : CLIENT_URL;
+const CORS_CREDENTIALS = CLIENT_URL !== '*';
 
 // ── App setup ─────────────────────────────
 const app    = express();
 const server = http.createServer(app);
 const io     = new Server(server, {
   cors: {
-    origin:      process.env.CLIENT_URL || '*',
+    origin:      CORS_ORIGIN,
     methods:     ['GET', 'POST'],
-    credentials: true,
+    credentials: CORS_CREDENTIALS,
   },
   pingTimeout:  60000,
   pingInterval: 25000,
@@ -29,12 +35,36 @@ const io     = new Server(server, {
 const PORT = process.env.PORT || 3000;
 
 // ── Middleware ─────────────────────────────
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],  // Allow inline scripts for login page
+      scriptSrcAttr: ["'unsafe-inline'"],        // Allow onclick and other inline event handlers
+      styleSrc: ["'self'", "'unsafe-inline'"],   // Allow inline styles
+      imgSrc: ["'self'", "data:", "https:"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      connectSrc: ["'self'"],
+    },
+  },
+}));
 app.use(cors({
-  origin:      process.env.CLIENT_URL || '*',
-  credentials: true,
+  origin:      CORS_ORIGIN,
+  credentials: CORS_CREDENTIALS,
 }));
 app.use(express.json({ limit: '20mb' }));        // allow base64 photo uploads
 app.use(express.urlencoded({ extended: true }));
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many auth attempts. Please try again later.' },
+});
+// Apply rate limiter only to login and register endpoints
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
 
 // ── Static file uploads ────────────────────
 const UPLOAD_DIR = path.resolve(process.env.UPLOAD_DIR || './uploads');
