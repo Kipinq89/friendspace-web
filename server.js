@@ -3,6 +3,7 @@
  * Express REST API + Socket.IO WebSocket server
  *
  * Start: node server.js  (or: npm run dev for auto-reload)
+ * Last updated: 2026-05-13
  */
 
 require('dotenv').config();
