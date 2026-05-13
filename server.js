@@ -56,8 +56,8 @@ app.use(express.json({ limit: '20mb' }));        // allow base64 photo uploads
 app.use(express.urlencoded({ extended: true }));
 
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
+  windowMs: 30 * 60 * 1000, // 30 minutes
+  max: 20, // Allow 20 attempts per 30 minutes
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many auth attempts. Please try again later.' },
