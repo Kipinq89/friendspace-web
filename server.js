@@ -55,16 +55,17 @@ app.use(cors({
 app.use(express.json({ limit: '20mb' }));        // allow base64 photo uploads
 app.use(express.urlencoded({ extended: true }));
 
-const authLimiter = rateLimit({
-  windowMs: 30 * 60 * 1000, // 30 minutes
-  max: 20, // Allow 20 attempts per 30 minutes
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: 'Too many auth attempts. Please try again later.' },
-});
+// Temporarily disable auth rate limiting for testing
+// const authLimiter = rateLimit({
+//   windowMs: 30 * 60 * 1000, // 30 minutes
+//   max: 20, // Allow 20 attempts per 30 minutes
+//   standardHeaders: true,
+//   legacyHeaders: false,
+//   message: { error: 'Too many auth attempts. Please try again later.' },
+// });
 // Apply rate limiter only to login and register endpoints
-app.use('/api/auth/login', authLimiter);
-app.use('/api/auth/register', authLimiter);
+// app.use('/api/auth/login', authLimiter);
+// app.use('/api/auth/register', authLimiter);
 
 // ── Static file uploads ────────────────────
 const UPLOAD_DIR = path.resolve(process.env.UPLOAD_DIR || './uploads');
