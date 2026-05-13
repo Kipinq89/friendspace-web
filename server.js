@@ -16,7 +16,12 @@ try {
 } catch (err) {
   console.warn('⚠️ Optional dependency helmet not found. Continuing without helmet.');
 }
-const rateLimit    = require('express-rate-limit');
+let rateLimit;
+try {
+  rateLimit = require('express-rate-limit');
+} catch (err) {
+  console.warn('⚠️ Optional dependency express-rate-limit not found. Continuing without rate limiting.');
+}
 const path         = require('path');
 const fs           = require('fs');
 
