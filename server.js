@@ -10,7 +10,12 @@ const express      = require('express');
 const http         = require('http');
 const { Server }   = require('socket.io');
 const cors         = require('cors');
-const helmet       = require('helmet');
+let helmet;
+try {
+  helmet = require('helmet');
+} catch (err) {
+  console.warn('⚠️ Optional dependency helmet not found. Continuing without helmet.');
+}
 const rateLimit    = require('express-rate-limit');
 const path         = require('path');
 const fs           = require('fs');
@@ -35,19 +40,23 @@ const io     = new Server(server, {
 const PORT = process.env.PORT || 3000;
 
 // ── Middleware ─────────────────────────────
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],  // Allow inline scripts for login page
-      scriptSrcAttr: ["'unsafe-inline'"],        // Allow onclick and other inline event handlers
-      styleSrc: ["'self'", "'unsafe-inline'"],   // Allow inline styles
-      imgSrc: ["'self'", "data:", "https:"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      connectSrc: ["'self'"],
+if (helmet) {
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],  // Allow inline scripts for login page
+        scriptSrcAttr: ["'unsafe-inline'"],        // Allow onclick and other inline event handlers
+        styleSrc: ["'self'", "'unsafe-inline'"],   // Allow inline styles
+        imgSrc: ["'self'", "data:", "https:"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        connectSrc: ["'self'"],
+      },
     },
-  },
-}));
+  }));
+} else {
+  console.warn('⚠️ Helmet middleware disabled because module is unavailable.');
+}
 app.use(cors({
   origin:      CORS_ORIGIN,
   credentials: CORS_CREDENTIALS,
