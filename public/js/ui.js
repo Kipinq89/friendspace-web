@@ -36,6 +36,7 @@ const UI = {
     UI.$$$('.view').forEach(v => v.classList.remove('active'));
     UI.$$$('.nav-btn').forEach(b => b.classList.remove('active'));
     UI.$$$('.menu-item').forEach(m => m.classList.remove('active'));
+    UI.$$$('.bottom-nav-item').forEach(b => b.classList.remove('active'));
 
     const view = UI.$(`view-${name}`);
     if (view) view.classList.add('active');
@@ -45,6 +46,12 @@ const UI = {
 
     const menuItem = UI.$$(`[data-menu="${name}"]`);
     if (menuItem) menuItem.classList.add('active');
+
+    const bottomNavItem = UI.$$(`.bottom-nav-item[data-view="${name}"]`);
+    if (bottomNavItem) bottomNavItem.classList.add('active');
+
+    // Module-specific init
+    if (name === 'groups' && typeof Groups !== 'undefined') Groups.renderBrowse();
   },
 
   /** Set sidebar active menu item */
@@ -101,6 +108,15 @@ const UI = {
       text: emoji,
       style: `width:${size}px;height:${size}px;font-size:${Math.round(size * 0.48)}px;`,
     });
+  },
+
+  /** Render an emoji or image avatar as HTML */
+  renderAvatar(value, size = 42, radius = '50%') {
+    const candidate = value || '';
+    if (candidate && (candidate.startsWith('data:') || candidate.includes('://') || candidate.startsWith('/'))) {
+      return `<img src="${candidate}" alt="Avatar" style="width:${size}px;height:${size}px;object-fit:cover;border-radius:${radius};" onerror="this.style.display='none';this.nextSibling.style.display='inline-block';"><span style="display:none;">😎</span>`;
+    }
+    return candidate || '😎';
   },
 
   /** Render a gradient emoji avatar (for top8, groups, etc.) */

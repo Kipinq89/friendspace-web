@@ -95,6 +95,17 @@ const Messages = {
     try {
       const res = await API.messages.inbox();
       const convos = res.conversations || [];
+      const unreadCount = convos.reduce((sum, c) => sum + (c.unread ? 1 : 0), 0);
+      const msgBtn = document.querySelector('[data-view="messages"] .notif-count');
+      if (msgBtn) {
+        msgBtn.textContent = unreadCount;
+        msgBtn.style.display = unreadCount > 0 ? 'inline' : 'none';
+      }
+      const msgBadge = document.querySelector('[data-menu="messages"] .badge');
+      if (msgBadge) {
+        msgBadge.textContent = unreadCount;
+        msgBadge.style.display = unreadCount > 0 ? 'inline' : 'none';
+      }
 
       if (convos.length === 0) {
         list.innerHTML = `<div style="padding:20px; color:var(--muted);">No conversations yet.</div>`;

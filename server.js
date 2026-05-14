@@ -51,12 +51,15 @@ if (helmet) {
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'"],  // Allow inline scripts for login page
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.socket.io"],
         scriptSrcAttr: ["'unsafe-inline'"],        // Allow onclick and other inline event handlers
-        styleSrc: ["'self'", "'unsafe-inline'"],   // Allow inline styles
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         imgSrc: ["'self'", "data:", "https:"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
         connectSrc: ["'self'"],
+        frameSrc: ["'self'", "https://www.youtube.com", "https://www.youtube-nocookie.com", "https://open.spotify.com"],
+        childSrc: ["'self'", "https://www.youtube.com", "https://www.youtube-nocookie.com", "https://open.spotify.com"],
+        mediaSrc: ["'self'", "https://open.spotify.com", "https://www.youtube.com", "https://www.youtube-nocookie.com"],
       },
     },
   }));
@@ -69,6 +72,14 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '20mb' }));        // allow base64 photo uploads
 app.use(express.urlencoded({ extended: true }));
+
+// Disable caching for API responses
+app.use('/api', (req, res, next) => {
+  res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  next();
+});
 
 // Temporarily disable auth rate limiting for testing
 // const authLimiter = rateLimit({

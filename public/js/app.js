@@ -79,6 +79,12 @@ window.addEventListener('DOMContentLoaded', async () => {
         AppState.currentUser = {
           ...AppState.currentUser,
           ...user,
+          profileSongUrl: user.profile_song_url || user.profileSongUrl || AppState.currentUser.profileSongUrl,
+          profileSongTitle: user.profile_song_title || user.profileSongTitle || AppState.currentUser.profileSongTitle,
+          profileSongArtist: user.profile_song_artist || user.profileSongArtist || AppState.currentUser.profileSongArtist,
+          youtubeUrl: user.youtube_url || user.youtubeUrl || AppState.currentUser.youtubeUrl,
+          spotifyUrl: user.spotify_url || user.spotifyUrl || AppState.currentUser.spotifyUrl,
+          avatar: user.avatar || user.emoji || AppState.currentUser.avatar,
           name: user.username,
           stats: {
             friends: data.stats?.friends || 0,
@@ -96,7 +102,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (sidebarTag) sidebarTag.textContent = user.tagline || '';
         
         const sidebarAv = document.querySelector('.sidebar .avatar');
-        if (sidebarAv) sidebarAv.textContent = user.emoji || '😎';
+        if (sidebarAv) sidebarAv.innerHTML = UI.renderAvatar(user.avatar || user.emoji, 48, '50%');
         
         const sidebarMood = document.querySelector('.sidebar .mood-display');
         if (sidebarMood) sidebarMood.textContent = user.mood || '😊 Happy';
@@ -116,15 +122,15 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (typeof Player   !== 'undefined') Player.init();
   if (typeof Profile  !== 'undefined') Profile.init();
   if (typeof Messages !== 'undefined') Messages.init();
-  if (typeof Settings !== 'undefined') Settings.init();
+  if (typeof Settings !== 'undefined') Settings.renderView();
   if (typeof Groups   !== 'undefined') Groups.init();
   if (typeof Friends  !== 'undefined') Friends.init();
 
-  // Render Groups
-  if (typeof Groups !== 'undefined') Groups.renderGroups();
-
   // Update notification counts
   updateNotificationCounts();
+
+  // Set default view
+  showView('feed');
 });
 
 function updateNotificationCounts() {
@@ -140,6 +146,11 @@ function updateNotificationCounts() {
     msgBadge.textContent = unreadMessages;
     msgBadge.style.display = unreadMessages > 0 ? 'inline' : 'none';
   }
+  const navMsgBadge = document.getElementById('nav-messages-badge');
+  if (navMsgBadge) {
+    navMsgBadge.textContent = unreadMessages;
+    navMsgBadge.style.display = unreadMessages > 0 ? 'inline' : 'none';
+  }
 
   // Friends count (friend requests)
   const friendRequests = AppState.friendRequests.length;
@@ -152,5 +163,10 @@ function updateNotificationCounts() {
   if (friendsBadge) {
     friendsBadge.textContent = friendRequests;
     friendsBadge.style.display = friendRequests > 0 ? 'inline' : 'none';
+  }
+  const navFriendsBadge = document.getElementById('nav-friends-badge');
+  if (navFriendsBadge) {
+    navFriendsBadge.textContent = friendRequests;
+    navFriendsBadge.style.display = friendRequests > 0 ? 'inline' : 'none';
   }
 }

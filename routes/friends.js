@@ -21,7 +21,27 @@ router.get('/', requireAuth, (req, res) => {
     ORDER BY u.username
   `).all(req.user.id, req.user.id, req.user.id, req.user.id);
 
-  return res.json({ friends });
+  const requests = db.prepare(`
+    SELECT u.id, u.username, u.handle, u.emoji, f.created_at AS requested_at,
+      (SELECT COUNT(*) FROM friendships f2
+       WHERE ((f2.sender_id = u.id AND f2.receiver_id IN (
+                 SELECT CASE WHEN sender_id = ? THEN receiver_id ELSE sender_id END
+                 FROM friendships WHERE (sender_id = ? OR receiver_id = ?) AND status = 'accepted'))
+           OR (f2.receiver_id = u.id AND f2.sender_id IN (
+                 SELECT CASE WHEN sender_id = ? THEN receiver_id ELSE sender_id END
+                 FROM friendships WHERE (sender_id = ? OR receiver_id = ?) AND status = 'accepted')))
+       AND f2.status = 'accepted') AS mutual_friends
+    FROM friendships f
+    JOIN users u ON u.id = f.sender_id
+    WHERE f.receiver_id = ? AND f.status = 'pending'
+    ORDER BY f.created_at DESC
+  `).all(
+    req.user.id, req.user.id, req.user.id,
+    req.user.id, req.user.id, req.user.id,
+    req.user.id
+  );
+
+  return res.json({ friends, requests });
 });
 
 // ── GET INCOMING REQUESTS ─────────────────

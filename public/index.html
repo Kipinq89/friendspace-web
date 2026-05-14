@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KipinQ</title>
   <link rel="stylesheet" href="css/styles.css">
-  <link rel="icon" type="image/png" href="favicon_social.png">
+  <link rel="icon" type="image/png" href=images/fav/favicon_social.png">
 </head>
 
 <body>
@@ -42,45 +42,45 @@
           <span class="logo-friend">Kipin</span><span class="logo-space">Q</span>
         </span>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <div class="search-bar">
-          <span style="color:var(--muted);font-size:13px;">🔍</span>
-          <input type="text" placeholder="Search people...">
+      <div style="display:flex;align-items:center;gap:0;position:relative;">
+        <div class="search-bar" style="border-radius:var(--radius-xl) 0 0 var(--radius-xl);border-right:none;padding-left:14px;">
+          <input id="navbar-search-input" type="text" placeholder="Search people..."
+            onkeydown="if(event.key==='Enter')navbarSearch()"
+            oninput="if(this.value.trim())navbarSearch();else document.getElementById('navbar-search-results').style.display='none'">
+        </div>
+        <button id="navbar-search-btn" onclick="navbarSearch()"
+          style="height:36px;padding:0 14px;background:linear-gradient(135deg,var(--primary),var(--secondary));border:none;border-radius:0 var(--radius-xl) var(--radius-xl) 0;font-size:15px;cursor:pointer;transition:filter 0.18s ease;display:flex;align-items:center;justify-content:center;"
+          onmouseover="this.style.filter='brightness(1.15)'" onmouseout="this.style.filter='brightness(1)'">🔍</button>
+        <div id="navbar-search-results"
+          style="display:none;position:absolute;top:44px;left:0;width:320px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:0 8px 32px rgba(0,0,0,0.5);z-index:999;overflow:hidden;">
         </div>
       </div>
       <div class="nav-links">
         <button class="nav-btn active" data-view="feed" onclick="showView('feed',this)">🏠 Home</button>
-        <button class="nav-btn" data-view="profile" onclick="showView('profile',this)">😎 Profile</button>
-        <button class="nav-btn notification-dot" data-view="friends" onclick="showView('friends',this)">👥 Friends <span
-            class="notif-count">3</span></button>
-        <button class="nav-btn notification-dot" data-view="messages" onclick="showView('messages',this)">💬 Messages
-          <span class="notif-count">2</span></button>
-        <button class="nav-btn" data-view="groups" onclick="showView('groups',this)">🌐 Groups</button>
-        <button class="nav-btn" data-view="photos" onclick="showView('photos',this)">📷 Photos</button>
-        <button class="nav-btn" data-view="settings" onclick="showView('settings',this)">⚙️ Settings</button>
-        <button class="nav-btn" style="color:var(--danger);" onclick="API.auth.logout()">🚪 Logout</button>
+        <button class="nav-btn notification-dot" data-view="messages" onclick="showView('messages',this)">💬 Messages <span class="notif-count" style="display:none">0</span></button>
+        <button class="nav-btn" data-view="notifications" onclick="showView('notifications',this)">🔔 Notifications</button>
       </div>
     </nav>
 
     <!-- Bottom Navigation for Mobile -->
     <div class="bottom-nav">
-      <a class="bottom-nav-item active" onclick="showView('feed', null)">
+      <a class="bottom-nav-item active" data-view="feed" onclick="showView('feed', null)">
         <i>🏠</i>
         <span>Home</span>
       </a>
-      <a class="bottom-nav-item" onclick="showView('friends', null)">
+      <a class="bottom-nav-item" data-view="friends" onclick="showView('friends', null)">
         <i>👥</i>
         <span>Friends</span>
       </a>
-      <a class="bottom-nav-item" onclick="showView('messages', null)">
+      <a class="bottom-nav-item" data-view="messages" onclick="showView('messages', null)">
         <i>💬</i>
         <span>Chat</span>
       </a>
-      <a class="bottom-nav-item" onclick="showView('groups', null)">
+      <a class="bottom-nav-item" data-view="groups" onclick="showView('groups', null)">
         <i>🌐</i>
         <span>Groups</span>
       </a>
-      <a class="bottom-nav-item" onclick="showView('profile', null)">
+      <a class="bottom-nav-item" data-view="profile" onclick="showView('profile', null)">
         <i>😎</i>
         <span>Profile</span>
       </a>
@@ -108,10 +108,13 @@
               <span class="menu-icon">📋</span> My Profile
             </div>
             <div class="menu-item" data-menu="friends" onclick="showView('friends',null);setActive(this)">
-              <span class="menu-icon">👥</span> Friends <span class="badge">3</span>
+              <span class="menu-icon">👥</span> Friends <span class="badge" id="nav-friends-badge" style="display:none">0</span>
+            </div>
+            <div class="menu-item" data-menu="notifications" onclick="showView('notifications',null);setActive(this)">
+              <span class="menu-icon">🔔</span> Notifications <span class="badge" id="nav-notif-badge" style="display:none">0</span>
             </div>
             <div class="menu-item" data-menu="messages" onclick="showView('messages',null);setActive(this)">
-              <span class="menu-icon">💬</span> Messages <span class="badge">2</span>
+              <span class="menu-icon">💬</span> Messages <span class="badge" id="nav-messages-badge" style="display:none">0</span>
             </div>
             <div class="menu-item" data-menu="photos" onclick="showView('photos',null);setActive(this)">
               <span class="menu-icon">📷</span> Photos
@@ -133,34 +136,17 @@
 
         <div>
           <div class="sidebar-section">Online Now</div>
-          <div class="online-list">
-            <div class="online-user" onclick="showView('messages',null)">
-              <div class="online-avatar">🎵</div>
-              <div>
-                <div class="online-name">StarGirl99</div>
-                <div class="online-status">listening to music</div>
-              </div>
-            </div>
-            <div class="online-user" onclick="showView('messages',null)">
-              <div class="online-avatar">🏄</div>
-              <div>
-                <div class="online-name">SurferDude42</div>
-                <div class="online-status">at the beach</div>
-              </div>
-            </div>
-            <div class="online-user" onclick="showView('messages',null)">
-              <div class="online-avatar">🌙</div>
-              <div>
-                <div class="online-name">NightOwl_X</div>
-                <div class="online-status">can't sleep lol</div>
-              </div>
-            </div>
+          <div class="online-list" id="online-now-list">
+            <div style="text-align:center;color:var(--muted);padding:16px;">Loading online friends…</div>
           </div>
         </div>
 
-        <div class="marquee-wrap"
-          style="border:1px solid var(--border);border-radius:8px;padding:6px;background:var(--surface2);">
-          <div class="marquee-text">🎵 Now playing: My Chemical Romance - Welcome To The Black Parade 🎵</div>
+        <div
+          style="border:1px solid var(--border);border-radius:8px;padding:10px 8px;background:var(--surface2);text-align:center;">
+          <div style="font-size:11px; color:var(--text); margin-bottom:6px; opacity:0.8;">🎧 Now Playing</div>
+          <div class="marquee-wrap">
+            <div id="left-marquee-text" class="marquee-text">Paused</div>
+          </div>
         </div>
       </aside>
 
@@ -249,8 +235,7 @@
                       <div class="fnp-fill"></div>
                     </div>
                   </div>
-                  <button class="fnp-play"
-                    onclick="showView('music', document.querySelector('[data-view=music]'))">▶</button>
+                  <button class="fnp-play" id="fnp-play-btn">▶</button>
                 </div>
               </div>
 
@@ -265,51 +250,24 @@
               <!-- Trending -->
               <div class="sidebar-widget">
                 <div class="widget-title">🔥 Trending Now</div>
-                <div class="feed-trending">
-                  <div class="trend-item" onclick="FeedSidebar.clickTrend(this)">#MCRisBack <span
-                      class="trend-count">2.4k</span></div>
-                  <div class="trend-item" onclick="FeedSidebar.clickTrend(this)">#BeachVibes <span
-                      class="trend-count">1.1k</span></div>
-                  <div class="trend-item" onclick="FeedSidebar.clickTrend(this)">#NightThoughts <span
-                      class="trend-count">893</span></div>
-                  <div class="trend-item" onclick="FeedSidebar.clickTrend(this)">#FriendRequest <span
-                      class="trend-count">641</span></div>
-                  <div class="trend-item" onclick="FeedSidebar.clickTrend(this)">#EmoRevival <span
-                      class="trend-count">508</span></div>
+                <div id="feed-trending" class="feed-trending">
+                  <div style="text-align:center;color:var(--muted);padding:16px;">Loading trends…</div>
                 </div>
               </div>
 
               <!-- People You May Know -->
               <div class="sidebar-widget">
                 <div class="widget-title">👥 People You May Know</div>
-                <div id="suggested-friends" style="display:flex;flex-direction:column;gap:10px;"></div>
+                <div id="suggested-friends" style="display:flex;flex-direction:column;gap:10px;">
+                  <div style="text-align:center;color:var(--muted);padding:16px;">Loading suggestions…</div>
+                </div>
               </div>
 
               <!-- Active Groups -->
               <div class="sidebar-widget">
                 <div class="widget-title">🌐 Active Groups</div>
-                <div class="feed-groups">
-                  <div class="feed-group-item" onclick="showView('feed',null)">
-                    <div class="feed-group-av" style="background:linear-gradient(135deg,#4a0080,#FF6B9D)">🎸</div>
-                    <div class="feed-group-info">
-                      <div class="feed-group-name">MCR Fan Club ✨</div>
-                      <div class="feed-group-stat">4,821 members · 12 new posts</div>
-                    </div>
-                  </div>
-                  <div class="feed-group-item" onclick="showView('feed',null)">
-                    <div class="feed-group-av" style="background:linear-gradient(135deg,#0088cc,#00ccaa)">🏄</div>
-                    <div class="feed-group-info">
-                      <div class="feed-group-name">Sydney Beach Crew 🌊</div>
-                      <div class="feed-group-stat">892 members · 3 new posts</div>
-                    </div>
-                  </div>
-                  <div class="feed-group-item" onclick="showView('feed',null)">
-                    <div class="feed-group-av" style="background:linear-gradient(135deg,#1a0a2e,#7B2FBE)">🌙</div>
-                    <div class="feed-group-info">
-                      <div class="feed-group-name">Night Owls Club 🌙</div>
-                      <div class="feed-group-stat">3,344 members · 7 new posts</div>
-                    </div>
-                  </div>
+                <div class="feed-groups" id="active-groups-list">
+                  <div style="text-align:center;color:var(--muted);padding:16px;">Loading groups…</div>
                 </div>
               </div>
 
@@ -340,90 +298,27 @@
         </div>
 
         <!-- PROFILE VIEW — rendered by Profile.init() -->
-        <div id="view-profile" class="view"></div>
+        <div id="view-profile" class="view active"></div>
 
         <!-- FRIENDS VIEW -->
         <div id="view-friends" class="view">
-          <div style="padding:0 0 16px;display:flex;align-items:center;justify-content:space-between;">
-            <div>
-              <div style="font-family:'Righteous',cursive;font-size:20px;color:var(--accent);">👥 My Friends</div>
-              <div style="font-size:13px;color:var(--muted);">284 friends total • 3 new requests</div>
-            </div>
-          </div>
+          <!-- Rendered by Friends.init() -->
+        </div>
 
-          <div
-            style="background:var(--surface);border:1px solid var(--secondary);border-radius:12px;padding:14px;margin-bottom:16px;">
-            <div style="font-weight:800;font-size:14px;color:var(--secondary);margin-bottom:10px;">🔔 Friend Requests
-              (3)</div>
-            <div style="display:flex;flex-direction:column;gap:8px;">
-              <div
-                style="display:flex;align-items:center;gap:10px;padding:8px;background:var(--surface2);border-radius:8px;">
-                <div style="font-size:22px;">🦋</div>
-                <div style="flex:1;">
-                  <div style="font-weight:800;font-size:13px;color:var(--accent);">butterfly_grl</div>
-                  <div style="font-size:11px;color:var(--muted);">4 mutual friends</div>
-                </div>
-                <button onclick="acceptFriend(this)"
-                  style="background:var(--primary);border:none;color:#fff;border-radius:8px;padding:5px 12px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;">Accept</button>
-                <button onclick="this.closest('div.request-row, div').parentElement.style.display='none'"
-                  style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:5px 12px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:12px;">Decline</button>
-              </div>
-              <div
-                style="display:flex;align-items:center;gap:10px;padding:8px;background:var(--surface2);border-radius:8px;">
-                <div style="font-size:22px;">🎸</div>
-                <div style="flex:1;">
-                  <div style="font-weight:800;font-size:13px;color:var(--accent);">RockGod2005</div>
-                  <div style="font-size:11px;color:var(--muted);">2 mutual friends</div>
-                </div>
-                <button onclick="acceptFriend(this)"
-                  style="background:var(--primary);border:none;color:#fff;border-radius:8px;padding:5px 12px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;">Accept</button>
-                <button
-                  style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:5px 12px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:12px;">Decline</button>
-              </div>
+        <!-- MESSAGES VIEW — rendered by Messages.init() -->
+        <!-- Notifications View -->
+        <div id="view-notifications" class="view">
+          <div class="card" style="margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h2 class="section-title">🔔 Notifications</h2>
+              <button class="btn btn-primary" id="btn-read-all-notifs" onclick="Notifications.readAll()" style="font-size:11px; padding:5px 12px; display:none;">Mark All as Read</button>
             </div>
-          </div>
-
-          <div class="friends-grid">
-            <div class="friend-card">
-              <div class="friend-av">🎵</div>
-              <div class="friend-name">StarGirl99</div>
-              <div class="friend-mutual">14 mutual</div>
-              <div class="friend-status">🟢 online now</div>
-            </div>
-            <div class="friend-card">
-              <div class="friend-av">🏄</div>
-              <div class="friend-name">SurferDude42</div>
-              <div class="friend-mutual">8 mutual</div>
-              <div class="friend-status">🟢 online now</div>
-            </div>
-            <div class="friend-card">
-              <div class="friend-av">🌙</div>
-              <div class="friend-name">NightOwl_X</div>
-              <div class="friend-mutual">22 mutual</div>
-              <div class="friend-status">🟢 online now</div>
-            </div>
-            <div class="friend-card">
-              <div class="friend-av">⚡</div>
-              <div class="friend-name">ThunderB0lt</div>
-              <div class="friend-mutual">6 mutual</div>
-              <div class="friend-status">🟡 away</div>
-            </div>
-            <div class="friend-card">
-              <div class="friend-av">🌈</div>
-              <div class="friend-name">rainbow_kid</div>
-              <div class="friend-mutual">11 mutual</div>
-              <div class="friend-status">🔴 offline</div>
-            </div>
-            <div class="friend-card">
-              <div class="friend-av">😸</div>
-              <div class="friend-name">kittycat_xx</div>
-              <div class="friend-mutual">3 mutual</div>
-              <div class="friend-status">🔴 offline</div>
+            <div id="notifications-list" style="margin-top:15px; display:flex; flex-direction:column; gap:10px;">
+              <div style="text-align:center;color:var(--muted);padding:20px;">No new notifications</div>
             </div>
           </div>
         </div>
 
-        <!-- MESSAGES VIEW — rendered by Messages.init() -->
         <div id="view-messages" class="view" style="padding:0;"></div>
 
         <!-- GROUPS VIEW — rendered by Groups.init() -->
@@ -437,6 +332,7 @@
                 <div style="font-size:13px;color:var(--muted);margin-top:4px;">Upload, browse and tap photos to view
                   them larger.</div>
               </div>
+              <div id="photo-album-bar" style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap;"></div>
             </div>
             <div id="upload-zone" class="photos-upload-zone">
               <div class="upload-icon">📷</div>
@@ -503,6 +399,7 @@
     <div id="lightbox-caption" class="lightbox-caption" style="color:#fff;margin-top:14px;text-align:center;"></div>
   </div>
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="js/notif.js"></script>
   <script src="js/api-client.js"></script>
   <script src="js/data.js"></script>
   <script src="js/ui.js"></script>
@@ -514,7 +411,145 @@
   <script src="js/settings.js"></script>
   <script src="js/groups.js"></script>
   <script src="js/friends.js"></script>
+  <script src="js/notifications.js"></script>
   <script src="js/app.js"></script>
+
+  <script>
+    /* ── KipinQ Navbar Search ── */
+    const _searchPeople = [
+      { name:'StarGirl99',   status:'listening to music', emoji:'🎵', online:true  },
+      { name:'SurferDude42', status:'at the beach',       emoji:'🏄', online:true  },
+      { name:'NightOwl_X',   status:"can't sleep lol",    emoji:'🌙', online:true  },
+      { name:'ThunderB0lt',  status:'away',               emoji:'⚡', online:false },
+      { name:'rainbow_kid',  status:'offline',            emoji:'🌈', online:false },
+      { name:'kittycat_xx',  status:'offline',            emoji:'😸', online:false },
+      { name:'butterfly_grl',status:'online',             emoji:'🦋', online:true  },
+      { name:'RockGod2005',  status:'jamming',            emoji:'🎸', online:false },
+    ];
+
+    function navbarSearch() {
+      const input = document.getElementById('navbar-search-input');
+      const box   = document.getElementById('navbar-search-results');
+      if (!input || !box) return;
+      const q = input.value.trim().toLowerCase();
+      if (!q) { box.style.display = 'none'; return; }
+
+      const results = _searchPeople.filter(p => p.name.toLowerCase().includes(q));
+      if (!results.length) {
+        box.innerHTML = `<div style="padding:16px;text-align:center;color:var(--muted);font-size:13px;">Tiada hasil untuk "<b style='color:var(--text)'>${q}</b>"</div>`;
+      } else {
+        box.innerHTML = results.map(p => `
+          <div onclick="showView('friends',null);document.getElementById('navbar-search-results').style.display='none';"
+            style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;transition:background 0.15s;"
+            onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='transparent'">
+            <div style="width:36px;height:36px;border-radius:50%;background:var(--surface2);border:2px solid ${p.online ? 'var(--online)' : 'var(--border)'};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">${p.emoji}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:800;font-size:13px;color:var(--text);">${p.name}</div>
+              <div style="font-size:11px;color:var(--muted);">${p.status}</div>
+            </div>
+            <div style="width:8px;height:8px;border-radius:50%;background:${p.online ? 'var(--online)' : 'var(--border)'};box-shadow:${p.online ? '0 0 6px var(--online)' : 'none'};flex-shrink:0;"></div>
+          </div>
+        `).join('');
+      }
+      box.style.display = 'block';
+    }
+
+    document.addEventListener('click', function(e) {
+      const box   = document.getElementById('navbar-search-results');
+      const input = document.getElementById('navbar-search-input');
+      const btn   = document.getElementById('navbar-search-btn');
+      if (box && !box.contains(e.target) && e.target !== input && e.target !== btn) {
+        box.style.display = 'none';
+      }
+    });
+  </script>
+
+  <script>
+    /* ── KipinQ Real-time Popup Notifications ── */
+    window.addEventListener('DOMContentLoaded', function () {
+
+      // 💬 Mesej baru masuk → tunjuk popup
+      window.addEventListener('fs:message:receive', function (e) {
+        const msg = e.detail;
+        if (!msg) return;
+        KQNotif.message(
+          {
+            from:  msg.sender_username || msg.from || 'Someone',
+            text:  msg.text || '',
+            emoji: '💬',
+          },
+          function () { showView('messages', null); }
+        );
+        // Kemas kini badge Messages di navbar
+        const badge = document.querySelector('[data-view="messages"] .notif-count');
+        if (badge) {
+          badge.textContent = (parseInt(badge.textContent) || 0) + 1;
+          badge.style.display = 'inline';
+        }
+      });
+
+      // 🔔 Notifikasi server (friend request, post, dll) → tunjuk popup
+      window.addEventListener('fs:notification', function (e) {
+        const n = e.detail;
+        if (!n) return;
+
+        if (n.type === 'friend') {
+          KQNotif.friend(
+            { name: n.actor_username || 'Someone', emoji: '👥' },
+            async function () {
+              try {
+                await API.friends.accept(n.actor_id);
+                KQNotif.success('Friend request accepted! 🎉');
+              } catch (_) {}
+            },
+            async function () {
+              try { await API.friends.decline(n.actor_id); } catch (_) {}
+            }
+          );
+        } else if (n.type === 'message') {
+          KQNotif.message(
+            { from: n.actor_username || 'Someone', text: n.text || 'Sent you a message', emoji: '💬' },
+            function () { showView('messages', null); }
+          );
+        } else {
+          // Generic notification (post like, comment, dll)
+          KQNotif.show({
+            type: 'success',
+            tag: n.type ? n.type.toUpperCase() : 'NOTIFICATION',
+            title: n.actor_username || 'KipinQ',
+            msg: n.text || '',
+            customIcon: `<div class="kq-check-wrap"><div class="kq-check-circle"></div><span class="kq-check-tick">✓</span></div>`,
+            duration: 4000,
+          });
+        }
+
+        // Kemas kini badge Notifications di navbar
+        const notifBadge = document.getElementById('nav-notif-badge');
+        if (notifBadge) {
+          notifBadge.textContent = (parseInt(notifBadge.textContent) || 0) + 1;
+          notifBadge.style.display = 'inline';
+        }
+
+        // Jika view notifications terbuka, refresh senarai
+        const notifView = document.getElementById('view-notifications');
+        if (notifView && notifView.classList.contains('active')) {
+          if (typeof Notifications !== 'undefined') Notifications.loadNotifications();
+        }
+      });
+
+      // 📨 Unread count update dari server
+      window.addEventListener('fs:unread', function (e) {
+        const count = e.detail?.count || 0;
+        const badge = document.querySelector('[data-view="messages"] .notif-count');
+        if (badge) {
+          badge.textContent = count;
+          badge.style.display = count > 0 ? 'inline' : 'none';
+        }
+      });
+
+    });
+  </script>
+
 </body>
 
 </html>

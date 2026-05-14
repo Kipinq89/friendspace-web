@@ -5,10 +5,13 @@
 
 const Feed = {
 
-  init() {
-    this.renderPosts();
+  async init() {
+    await this.renderPosts();
     this.renderTop8();
     this.renderSuggestedFriends();
+    this.renderTrendingNow();
+    this.renderOnlineNow();
+    this.renderActiveGroups();
     this.bindComposer();
   },
 
@@ -347,11 +350,30 @@ const Feed = {
   renderSuggestedFriends() {
     const container = UI.$('suggested-friends');
     if (!container) return;
-    const suggestions = [
+
+    // Mock suggestions - in a real app, this would come from an API
+    const allSuggestions = [
       { name: 'butterfly_grl', emoji: '🦋' },
       { name: 'RockGod2005',   emoji: '🎸' },
+      { name: 'emo_kid_88',    emoji: '😢' },
+      { name: 'goth_princess', emoji: '👸' },
+      { name: 'skater_boi',    emoji: '🛼' },
+      { name: 'anime_fan',     emoji: '🎌' },
+      { name: 'music_lover',   emoji: '🎵' },
+      { name: 'dreamer_girl',  emoji: '💭' },
     ];
+
+    // Filter out current friends
+    const friends = AppState.friends || [];
+    const friendNames = friends.map(f => f.username || f.name).filter(Boolean);
+    const suggestions = allSuggestions.filter(s => !friendNames.includes(s.name)).slice(0, 4);
+
     container.innerHTML = '';
+    if (suggestions.length === 0) {
+      container.innerHTML = '<div style="text-align:center;color:var(--muted);padding:16px;">No new friend suggestions.</div>';
+      return;
+    }
+
     suggestions.forEach(s => {
       const row = UI.el('div', { style: 'display:flex;align-items:center;gap:8px;' });
       const av  = UI.el('div', { style: 'width:32px;height:32px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;', text: s.emoji });
@@ -369,6 +391,125 @@ const Feed = {
       });
       row.append(av, name, btn);
       container.appendChild(row);
+    });
+  },
+
+  /** Render "Trending Now" */
+  renderTrendingNow() {
+    const container = UI.$('feed-trending');
+    if (!container) return;
+
+    const posts = AppState.posts || [];
+    const hashtagCounts = {};
+
+    // Count hashtags from post texts
+    posts.forEach(post => {
+      const text = post.text || '';
+      const hashtags = text.match(/#[\w]+/g) || [];
+      hashtags.forEach(tag => {
+        hashtagCounts[tag] = (hashtagCounts[tag] || 0) + 1;
+      });
+    });
+
+    // Sort by count descending
+    const sortedTrends = Object.entries(hashtagCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5);
+
+    container.innerHTML = '';
+    if (sortedTrends.length === 0) {
+      container.innerHTML = '<div style="text-align:center;color:var(--muted);padding:16px;">No trending topics yet.</div>';
+      return;
+    }
+
+    sortedTrends.forEach(([tag, count]) => {
+      const item = UI.el('div', { cls: 'trend-item' });
+      item.addEventListener('click', () => this.clickTrend(item));
+      const tagText = UI.el('span', { text: tag });
+      const countEl = UI.el('span', { cls: 'trend-count', text: UI.fmtNum(count) });
+      item.append(tagText, countEl);
+      container.appendChild(item);
+    });
+  },
+
+  async renderOnlineNow() {
+    const container = UI.$('online-now-list');
+    if (!container) return;
+
+    let friends = AppState.friends || [];
+    if (friends.length === 0 && typeof API !== 'undefined' && API.friends) {
+      try {
+        const res = await API.friends.list();
+        friends = res.friends || [];
+        AppState.friends = friends;
+      } catch (err) {
+        console.warn('Failed to fetch online friends', err);
+      }
+    }
+
+    if (!friends.length) {
+      container.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;">No friends are currently online.</div>';
+      return;
+    }
+
+    container.innerHTML = '';
+    friends.slice(0, 3).forEach(friend => {
+      const onlineUser = UI.el('div', { cls: 'online-user' });
+      onlineUser.addEventListener('click', () => UI.showView('messages'));
+      const avatar = UI.el('div', { cls: 'online-avatar', text: friend.emoji || '😎' });
+      const info = UI.el('div');
+      const name = UI.el('div', { cls: 'online-name', text: friend.username || friend.name || 'Friend' });
+      const status = UI.el('div', { cls: 'online-status', text: friend.user_status || 'Online now' });
+      info.append(name, status);
+      onlineUser.append(avatar, info);
+      container.appendChild(onlineUser);
+    });
+  },
+
+  async renderActiveGroups() {
+    const container = UI.$('active-groups-list');
+    if (!container) return;
+
+    let groups = AppState.groups || [];
+    if (groups.length === 0 && typeof API !== 'undefined' && API.groups) {
+      try {
+        const res = await API.groups.list();
+        groups = res.groups || res.data || (Array.isArray(res) ? res : []);
+        AppState.groups = groups;
+      } catch (err) {
+        console.warn('Failed to fetch groups', err);
+      }
+    }
+
+    if (!groups.length) {
+      container.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;">No active groups to display.</div>';
+      return;
+    }
+
+    const activeGroups = groups
+      .slice()
+      .sort((a, b) => (b.member_count || 0) - (a.member_count || 0))
+      .slice(0, 3);
+
+    container.innerHTML = '';
+    activeGroups.forEach(group => {
+      const item = UI.el('div', { cls: 'feed-group-item' });
+      item.addEventListener('click', () => {
+        if (typeof Groups !== 'undefined' && typeof Groups.openGroup === 'function') {
+          Groups.openGroup(group.id);
+        } else {
+          UI.showView('groups');
+        }
+      });
+      const av = UI.el('div', { cls: 'feed-group-av', text: group.emoji || '🌐' });
+      av.style.background = group.gradient || 'linear-gradient(135deg,#4a0080,#FF6B9D)';
+      const info = UI.el('div', { cls: 'feed-group-info' });
+      const name = UI.el('div', { cls: 'feed-group-name', text: group.name || 'Unnamed Group' });
+      const statText = `${UI.fmtNum(group.member_count || 0)} members${group.post_count != null ? ' · ' + UI.fmtNum(group.post_count) + ' posts' : ''}`;
+      const stats = UI.el('div', { cls: 'feed-group-stat', text: statText });
+      info.append(name, stats);
+      item.append(av, info);
+      container.appendChild(item);
     });
   },
 };

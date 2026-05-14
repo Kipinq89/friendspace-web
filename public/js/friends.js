@@ -18,10 +18,14 @@ const Friends = {
       const friends = res.friends || [];
       const requests = res.requests || [];
       
-      // Update AppState for notification counts
+      // Update AppState for notification counts and online sidebar
       AppState.friendRequests = requests;
+      AppState.friends = friends;
       if (typeof updateNotificationCounts === 'function') {
         updateNotificationCounts();
+      }
+      if (typeof Feed !== 'undefined' && typeof Feed.renderOnlineNow === 'function') {
+        Feed.renderOnlineNow();
       }
 
       let html = `<div class="friends-container" style="padding:20px; max-width:900px; margin:0 auto;">

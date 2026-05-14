@@ -134,8 +134,8 @@ router.post('/logout', requireAuth, (req, res) => {
 // ── UPDATE PROFILE ────────────────────────
 router.patch('/me', requireAuth, (req, res) => {
   const allowed = ['bio', 'tagline', 'mood', 'location', 'status', 'zodiac',
-                   'emoji', 'profile_song_title', 'profile_song_artist',
-                   'privacy_profile', 'privacy_posts', 'privacy_online', 'allow_friend_reqs'];
+                   'emoji', 'profile_song_title', 'profile_song_artist', 'profile_song_url',
+                   'privacy_profile', 'privacy_posts', 'privacy_online', 'allow_friend_reqs', 'youtube_url', 'spotify_url'];
 
   const updates = {};
   allowed.forEach(field => {

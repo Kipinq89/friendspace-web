@@ -19,6 +19,18 @@ const Player = {
 
   /** Current track object */
   currentTrack() {
+    if (!Array.isArray(AppState.tracks) || AppState.tracks.length === 0) {
+      return {
+        title: 'No track loaded',
+        artist: 'No audio source',
+        emoji: '🎵',
+        duration: '--:--',
+        liked: false,
+      };
+    }
+    if (!AppState.playerState.currentTrackId) {
+      AppState.playerState.currentTrackId = AppState.tracks[0].id;
+    }
     return AppState.tracks.find(t => t.id === AppState.playerState.currentTrackId)
         || AppState.tracks[0];
   },
@@ -83,6 +95,7 @@ const Player = {
   /** Update the "Now Playing" card UI */
   updateNowPlaying() {
     const t = this.currentTrack();
+    if (!t) return;
     const s = AppState.playerState;
 
     this._setText('np-title', t.title || 'Untitled Track');
@@ -90,15 +103,48 @@ const Player = {
     this._setText('np-elapsed', s.elapsed || '0:00');
     this._setText('np-total', this._formatDuration(t));
     this._setProgress(s.progress);
+    
+    // Sync Feed Now Playing
+    document.querySelectorAll('.fnp-title').forEach(el => el.textContent = t.title || 'Untitled Track');
+    document.querySelectorAll('.fnp-artist').forEach(el => el.textContent = this._trackHasSource(t) ? t.artist : 'No audio source');
+    
+    // Sync Left Sidebar Marquee
+    const marquee = UI.$('left-marquee-text');
+    if (marquee) {
+      const isPlaying = s.playing && this._trackHasSource(t);
+      const newText = isPlaying ? `${t.artist} - ${t.title}` : `Paused`;
+
+      if (marquee.textContent !== newText) {
+        marquee.textContent = newText;
+      }
+
+      // Start/stop CSS marquee animation based on play state
+      if (isPlaying) {
+        marquee.dataset.scrolling = 'true';
+        marquee.style.animation = 'marquee-scroll 10s linear infinite';
+      } else {
+        marquee.dataset.scrolling = 'false';
+        marquee.style.animation = 'none';
+        marquee.style.transform = 'translateX(0)';
+      }
+    }
 
     const art = UI.$('np-art');
     if (art) {
       art.textContent = t.emoji || '🎵';
       art.classList.toggle('playing', s.playing && this._trackHasSource(t));
     }
+    
+    document.querySelectorAll('.fnp-art').forEach(el => {
+      el.textContent = t.emoji || '🎵';
+      el.classList.toggle('playing', s.playing && this._trackHasSource(t));
+    });
 
     const btn = UI.$('btn-play-pause');
     if (btn) btn.textContent = s.playing ? '⏸' : '▶';
+    
+    const fnpBtn = UI.$('fnp-play-btn');
+    if (fnpBtn) fnpBtn.textContent = s.playing ? '⏸' : '▶';
   },
 
   /** Bind all player control buttons */
@@ -109,6 +155,7 @@ const Player = {
     };
 
     bind('btn-play-pause', this.togglePlay);
+    bind('fnp-play-btn', this.togglePlay);
     bind('btn-prev', this.prevTrack);
     bind('btn-next', this.nextTrack);
     bind('btn-shuffle', this.toggleShuffle);
@@ -211,6 +258,16 @@ const Player = {
 
   bindAudio() {
     if (!this._audio) return;
+
+    this._audio.addEventListener('play', () => {
+      AppState.playerState.playing = true;
+      this.updateNowPlaying();
+    });
+
+    this._audio.addEventListener('pause', () => {
+      AppState.playerState.playing = false;
+      this.updateNowPlaying();
+    });
 
     this._audio.addEventListener('timeupdate', () => {
       if (!this._audio.duration || isNaN(this._audio.duration)) return;
@@ -351,6 +408,7 @@ const Player = {
   _setProgress(pct) {
     const fill = UI.$('np-progress-fill');
     if (fill) fill.style.width = `${pct}%`;
+    document.querySelectorAll('.fnp-fill').forEach(el => el.style.width = `${pct}%`);
   },
 
   _setText(id, text) {

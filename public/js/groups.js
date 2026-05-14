@@ -9,19 +9,178 @@
  *  4. grp-dropdown.open state ditambah
  *  5. saveEdit() kini hantar privacy
  *  6. showEditModal() kini set privacy value
+ *  7. ✨ Emoji picker grid (cantik) dalam Create + Edit modal
  */
 
 const Groups = {
   currentGroup: null,
 
   init() {
-    this.renderBrowse();
+    // Do nothing on load, renderBrowse called when view is shown
+  },
+
+  /* ── Emoji choices for group creation/editing ── */
+  _groupEmojis: [
+    '🌐','🎭','🎨','🎸','📷','🏖','🏔','🚀',
+    '🔥','💎','🌸','🌈','🎮','🍕','🐾','⚽',
+    '📚','🎵','🌙','💫','🏋️','🎬','🌿','✈️',
+    '🦋','🎪','🧪','🎯','🍃','💡','🏡','🤝',
+  ],
+
+  /* ── Inject emoji picker styles once ── */
+  _injectGroupStyles() {
+    if (document.getElementById('grp-emoji-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'grp-emoji-styles';
+    style.textContent = `
+      /* ── Emoji picker section ── */
+      .grp-emoji-label {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1.1px;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 8px;
+        margin-top: 10px;
+        display: block;
+      }
+
+      /* Selected emoji preview badge */
+      .grp-emoji-preview {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--surface2);
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        padding: 6px 12px;
+        margin-bottom: 10px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .grp-emoji-preview-icon {
+        font-size: 22px;
+        line-height: 1;
+        filter: drop-shadow(0 1px 4px rgba(0,0,0,.3));
+      }
+
+      /* Grid container */
+      .grp-emoji-grid {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        gap: 5px;
+        background: var(--surface2);
+        border: 1.5px solid var(--border);
+        border-radius: 12px;
+        padding: 10px;
+        margin-bottom: 14px;
+        max-height: 130px;
+        overflow-y: auto;
+      }
+      .grp-emoji-grid::-webkit-scrollbar { width: 4px; }
+      .grp-emoji-grid::-webkit-scrollbar-thumb {
+        background: var(--border2);
+        border-radius: 4px;
+      }
+
+      /* Individual emoji button */
+      .grp-emoji-opt {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        border: 1.5px solid transparent;
+        background: transparent;
+        font-size: 18px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all .14s ease;
+        position: relative;
+      }
+      .grp-emoji-opt:hover {
+        background: var(--surface3);
+        border-color: var(--border2);
+        transform: scale(1.18);
+        z-index: 1;
+      }
+      .grp-emoji-opt.selected {
+        background: rgba(255, 77, 148, .18);
+        border-color: var(--secondary);
+        box-shadow: 0 0 10px rgba(255,77,148,.35);
+        transform: scale(1.12);
+      }
+
+      /* Gradient swatch styling */
+      .grp-grad-swatch {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        cursor: pointer;
+        border: 2.5px solid transparent;
+        transition: all .15s ease;
+        flex-shrink: 0;
+      }
+      .grp-grad-swatch:hover { transform: scale(1.12); }
+      .grp-grad-swatch.selected {
+        border-color: #fff;
+        box-shadow: 0 0 0 2px var(--secondary), 0 0 12px rgba(255,77,148,.4);
+        transform: scale(1.12);
+      }
+    `;
+    document.head.appendChild(style);
+  },
+
+  /**
+   * Build the emoji picker HTML for a given modal prefix (e.g. 'grp-c' or 'grp-e')
+   * and a currently-selected emoji.
+   */
+  _emojiPickerHTML(prefix, selectedEmoji = '🌐') {
+    const buttons = this._groupEmojis.map(em => `
+      <button type="button"
+        class="grp-emoji-opt${em === selectedEmoji ? ' selected' : ''}"
+        data-emoji="${em}"
+        title="${em}"
+        onclick="Groups._selectEmoji('${prefix}','${em}',this)">
+        ${em}
+      </button>`).join('');
+
+    return `
+      <span class="grp-emoji-label">Group Icon</span>
+      <div class="grp-emoji-preview" id="${prefix}-emoji-preview">
+        <span class="grp-emoji-preview-icon" id="${prefix}-emoji-preview-icon">${selectedEmoji}</span>
+        <span id="${prefix}-emoji-preview-text">Selected icon</span>
+      </div>
+      <div class="grp-emoji-grid" id="${prefix}-emoji-grid">
+        ${buttons}
+      </div>
+      <input type="hidden" id="${prefix}-emoji" value="${selectedEmoji}">
+    `;
+  },
+
+  /** Handle emoji selection — update hidden input + preview */
+  _selectEmoji(prefix, emoji, clickedBtn) {
+    // Update hidden input
+    const inp = document.getElementById(`${prefix}-emoji`);
+    if (inp) inp.value = emoji;
+
+    // Update preview
+    const previewIcon = document.getElementById(`${prefix}-emoji-preview-icon`);
+    if (previewIcon) previewIcon.textContent = emoji;
+
+    // Toggle selected class
+    const grid = document.getElementById(`${prefix}-emoji-grid`);
+    if (grid) {
+      grid.querySelectorAll('.grp-emoji-opt').forEach(b => b.classList.remove('selected'));
+    }
+    if (clickedBtn) clickedBtn.classList.add('selected');
   },
 
   // ═══════════════════════════════════════════════
   //  BROWSE — grid of all groups
   // ═══════════════════════════════════════════════
   async renderBrowse() {
+    this._injectGroupStyles();
     const view = document.getElementById('view-groups');
     if (!view) return;
     this.currentGroup = null;
@@ -29,7 +188,6 @@ const Groups = {
 
     try {
       const res = await API.groups.list();
-      // Handle sama ada { groups: [...] } atau terus [...]
       const groups = res.groups || res.data || (Array.isArray(res) ? res : []);
       const me = API.auth.getUser();
 
@@ -88,9 +246,6 @@ const Groups = {
   },
 
   _cardHTML(g, myId) {
-    // is_owner: boolean field yang sesetengah API return terus
-    // role === 'owner': kalau API set role dalam list response
-    // owner_id / created_by / user_id: bandingkan dengan myId
     const isOwner      = g.is_owner === true
                       || g.is_owner === 1
                       || g.role === 'owner'
@@ -149,7 +304,6 @@ const Groups = {
     });
     const h = document.getElementById('grp-browse-heading');
     if (h) h.textContent = filter === 'joined' ? 'Your Groups' : filter === 'owned' ? 'Managed by You' : 'Discover Groups';
-    // Tunjuk mesej kalau tiada group
     const grid = document.getElementById('grp-grid');
     const existing = grid?.querySelector('.grp-filter-empty');
     if (existing) existing.remove();
@@ -167,24 +321,18 @@ const Groups = {
   },
 
   toggleMenu(id) {
-    // Close other menus first
     document.querySelectorAll('.grp-dropdown').forEach(d => {
       if (d.id !== id) d.classList.remove('open');
     });
-
     const dropdown = document.getElementById(id);
     if (!dropdown) return;
-
-    // Toggle visibility
     const isOpen = dropdown.classList.toggle('open');
-
     if (isOpen) {
-      // Position the dropdown using fixed positioning
       const trigger = document.querySelector(`button[onclick*="${id}"]`);
       if (trigger) {
         const rect = trigger.getBoundingClientRect();
-        dropdown.style.left = `${rect.right - dropdown.offsetWidth}px`; // Align right edge
-        dropdown.style.top = `${rect.bottom + 5}px`; // 5px below trigger
+        dropdown.style.left = `${rect.right - dropdown.offsetWidth}px`;
+        dropdown.style.top  = `${rect.bottom + 5}px`;
       }
     }
   },
@@ -192,9 +340,8 @@ const Groups = {
   closeAllMenus() {
     document.querySelectorAll('.grp-dropdown').forEach(d => {
       d.classList.remove('open');
-      // Reset positioning when closing
       d.style.left = '';
-      d.style.top = '';
+      d.style.top  = '';
     });
   },
 
@@ -202,20 +349,18 @@ const Groups = {
   //  GROUP DETAIL
   // ═══════════════════════════════════════════════
   async openGroup(groupId, defaultTab = 'feed') {
+    this._injectGroupStyles();
     const view = document.getElementById('view-groups');
     if (!view) return;
     view.innerHTML = `<div class="grp-loading">Loading group…</div>`;
 
     try {
       const res = await API.groups.get(groupId);
-      // Handle sama ada API return { group: {...} } atau terus {...}
       const g   = res.group || res;
       this.currentGroup = g;
 
       const me        = API.auth.getUser();
       const myId      = String(me?.id || '');
-      // Cover pelbagai nama field: owner_id, created_by, user_id
-      // Juga cover kalau API set g.role = 'owner'
       const isOwner   = g.role === 'owner'
                      || String(g.owner_id    || '') === myId
                      || String(g.created_by  || '') === myId
@@ -314,10 +459,7 @@ const Groups = {
     const me = API.auth.getUser();
     container.innerHTML = `
       <div class="grp-feed-layout">
-
-        <!-- Main feed column -->
         <div class="grp-feed-col">
-
           ${joined ? `
           <div class="grp-composer-card">
             <div class="grp-composer-row">
@@ -337,7 +479,6 @@ const Groups = {
           </div>
         </div>
 
-        <!-- About sidebar -->
         <div class="grp-feed-sidebar">
           <div class="grp-about-card">
             <div class="grp-about-title">About</div>
@@ -396,12 +537,10 @@ const Groups = {
   async _loadPosts(groupId) {
     const container = document.getElementById('grp-posts');
     if (!container) return;
-
     try {
       const res   = await API.groups.getPosts(groupId);
       const posts = res.posts || [];
       const me    = API.auth.getUser();
-
       if (posts.length === 0) {
         container.innerHTML = `
           <div class="grp-empty-posts">
@@ -411,9 +550,7 @@ const Groups = {
           </div>`;
         return;
       }
-
       container.innerHTML = posts.map(p => this._postHTML(p, me, groupId)).join('');
-
     } catch (err) {
       container.innerHTML = `<div style="color:var(--danger);padding:20px;text-align:center;">Failed to load posts.</div>`;
     }
@@ -422,7 +559,6 @@ const Groups = {
   _postHTML(p, me, groupId) {
     const isMine = String(p.user_id) === String(me?.id);
     const liked  = p.liked || false;
-
     return `
       <div class="grp-post-card" id="grp-post-${p.id}">
         <div class="grp-post-header">
@@ -439,17 +575,13 @@ const Groups = {
             </div>
           </div>` : ''}
         </div>
-
         <div class="grp-post-text">${UI.escapeHTML(p.text || '')}</div>
-
         ${p.image ? `<img src="${p.image}" class="grp-post-image" onclick="Groups._lightbox('${p.image}')" alt="">` : ''}
-
         ${(p.like_count || p.comment_count) ? `
         <div class="grp-post-summary">
           ${p.like_count    ? `<span class="grp-summary-likes">👍 ${UI.fmtNum(p.like_count)}</span>` : ''}
           ${p.comment_count ? `<span class="grp-summary-comments" onclick="Groups.toggleComments('${p.id}','${groupId}')">${UI.fmtNum(p.comment_count)} comment${p.comment_count !== 1 ? 's' : ''}</span>` : ''}
         </div>` : ''}
-
         <div class="grp-post-actions">
           <button class="grp-action-btn ${liked ? 'active' : ''}" id="like-btn-${p.id}" onclick="Groups.toggleLike('${groupId}','${p.id}')">
             👍 Like
@@ -458,7 +590,6 @@ const Groups = {
             💬 Comment
           </button>
         </div>
-
         <div class="grp-comments-wrap" id="grp-comments-${p.id}" style="display:none;"></div>
       </div>
     `;
@@ -468,16 +599,13 @@ const Groups = {
     const ta   = document.getElementById('grp-compose-text');
     const text = ta?.value?.trim();
     if (!text) { UI.toast('Write something first!', 'warn'); return; }
-
     try {
       await API.groups.createPost(groupId, text);
       document.getElementById('grp-composer-modal')?.classList.add('pf-hidden');
       if (ta) ta.value = '';
       UI.toast('Posted! 🎉', 'success');
       await this._loadPosts(groupId);
-    } catch (err) {
-      UI.toast(err.message || 'Failed to post', 'danger');
-    }
+    } catch (err) { UI.toast(err.message || 'Failed to post', 'danger'); }
   },
 
   async toggleLike(groupId, postId) {
@@ -485,27 +613,22 @@ const Groups = {
     try {
       await API.posts.toggleLike(postId);
       if (btn) btn.classList.toggle('active');
-    } catch (err) {
-      UI.toast('Failed to like', 'danger');
-    }
+    } catch (err) { UI.toast('Failed to like', 'danger'); }
   },
 
   async toggleComments(postId, groupId) {
     const wrap = document.getElementById(`grp-comments-${postId}`);
     if (!wrap) return;
-
     if (wrap.style.display !== 'none' && wrap.innerHTML !== '') {
       wrap.style.display = 'none';
       return;
     }
     wrap.style.display = 'block';
     wrap.innerHTML = `<div style="padding:12px;color:var(--muted);font-size:13px;">Loading…</div>`;
-
     const me = API.auth.getUser();
     try {
       const res      = await API.posts.getComments(postId);
       const comments = res.comments || [];
-
       wrap.innerHTML = `
         <div class="grp-comments-inner">
           <div class="grp-comments-list" id="grp-cl-${postId}">
@@ -528,7 +651,6 @@ const Groups = {
                   </div>
                 </div>`).join('')}
           </div>
-
           <div class="grp-comment-input-row">
             ${UI.renderAvatar(me?.avatar, me?.username, 32).outerHTML}
             <input class="grp-comment-input" id="grp-ci-${postId}"
@@ -547,16 +669,13 @@ const Groups = {
     const input = document.getElementById(`grp-ci-${postId}`);
     const text  = input?.value?.trim();
     if (!text) return;
-
     try {
       await API.posts.addComment(postId, text);
       if (input) input.value = '';
       const wrap = document.getElementById(`grp-comments-${postId}`);
       if (wrap) wrap.innerHTML = '';
       await this.toggleComments(postId, groupId);
-    } catch (err) {
-      UI.toast(err.message || 'Failed', 'danger');
-    }
+    } catch (err) { UI.toast(err.message || 'Failed', 'danger'); }
   },
 
   async deleteComment(postId, commentId, groupId) {
@@ -566,9 +685,7 @@ const Groups = {
       const wrap = document.getElementById(`grp-comments-${postId}`);
       if (wrap) wrap.innerHTML = '';
       await this.toggleComments(postId, groupId);
-    } catch (err) {
-      UI.toast(err.message || 'Failed', 'danger');
-    }
+    } catch (err) { UI.toast(err.message || 'Failed', 'danger'); }
   },
 
   async deletePost(groupId, postId) {
@@ -577,9 +694,7 @@ const Groups = {
       await API.groups.deletePost(groupId, postId);
       document.getElementById(`grp-post-${postId}`)?.remove();
       UI.toast('Post deleted.', 'info');
-    } catch (err) {
-      UI.toast(err.message || 'Failed', 'danger');
-    }
+    } catch (err) { UI.toast(err.message || 'Failed', 'danger'); }
   },
 
   _lightbox(src) {
@@ -592,12 +707,9 @@ const Groups = {
 
   // ═══════════════════════════════════════════════
   //  MEMBERS TAB
-  //  FIX: Robust fallback — cuba members endpoint,
-  //       kalau gagal fallback ke group.members array
   // ═══════════════════════════════════════════════
   async _renderMembers(g, canManage, isOwner, container) {
     const joined = g.joined || isOwner;
-
     if (!joined && g.privacy !== 'public') {
       container.innerHTML = `
         <div style="color:var(--muted);padding:24px;text-align:center;">
@@ -606,35 +718,22 @@ const Groups = {
         </div>`;
       return;
     }
-
     container.innerHTML = `<div class="grp-loading">Loading members…</div>`;
-
     let members = [];
-
-    // Cuba dedicated members endpoint dulu
     try {
       const res = await API.groups.members(g.id);
       members = res.members || res || [];
-      // Kalau response adalah array terus
       if (!Array.isArray(members)) members = [];
     } catch {
-      // Kalau gagal, fallback ke group detail endpoint
       try {
         const fallback = await API.groups.get(g.id);
-        members = fallback.members
-          || fallback.group?.members
-          || [];
+        members = fallback.members || fallback.group?.members || [];
       } catch (finalErr) {
-        container.innerHTML = `
-          <div style="color:var(--danger);padding:20px;text-align:center;">
-            ${UI.escapeHTML(finalErr.message || 'Failed to load members.')}
-          </div>`;
+        container.innerHTML = `<div style="color:var(--danger);padding:20px;text-align:center;">${UI.escapeHTML(finalErr.message || 'Failed to load members.')}</div>`;
         return;
       }
     }
-
     const me = API.auth.getUser();
-
     container.innerHTML = `
       <div class="grp-members-wrap">
         <div class="grp-members-heading">
@@ -647,7 +746,6 @@ const Groups = {
                 const roleColor = m.role === 'owner' ? '#FFD700' : m.role === 'moderator' ? 'var(--primary)' : '';
                 const roleLabel = m.role === 'owner' ? '👑 Owner' : m.role === 'moderator' ? '🛡️ Mod' : '';
                 const isSelf    = String(m.id) === String(me?.id);
-
                 return `
                   <div class="grp-member-card">
                     ${UI.renderAvatar(m.avatar, m.username, 48).outerHTML}
@@ -713,9 +811,9 @@ const Groups = {
           <div class="pf-field" style="margin-top:10px;"><label>Description</label>
             <textarea id="gst-desc" class="input" rows="3">${UI.escapeHTML(g.desc || '')}</textarea>
           </div>
-          <div style="display:flex;gap:12px;margin-top:10px;">
-            <div class="pf-field" style="flex:1;"><label>Emoji</label>
-              <input id="gst-emoji" class="input" value="${UI.escapeHTML(g.emoji || '')}" maxlength="4">
+          <div style="display:flex;gap:12px;margin-top:10px;align-items:flex-start;">
+            <div class="pf-field" style="flex:2;">
+              ${this._emojiPickerHTML('gst', g.emoji || '🌐')}
             </div>
             <div class="pf-field" style="flex:2;"><label>Privacy</label>
               <select id="gst-privacy" class="input">
@@ -727,8 +825,9 @@ const Groups = {
           </div>
           <div class="pf-field" style="margin-top:10px;"><label>Theme Colour</label>
             <div style="display:flex;gap:8px;flex-wrap:wrap;" id="gst-grad-pick">
-              ${gradients.map(gr => `<div onclick="Groups._pickGrad(this,'${gr}','gst-grad','gst-grad-pick')"
-                style="width:34px;height:34px;border-radius:8px;background:${gr};cursor:pointer;border:2px solid ${gr === g.gradient ? 'var(--primary)' : 'transparent'};"
+              ${gradients.map(gr => `<div class="grp-grad-swatch${gr === g.gradient ? ' selected' : ''}"
+                onclick="Groups._pickGrad(this,'${gr}','gst-grad','gst-grad-pick')"
+                style="background:${gr};"
                 data-gradient="${gr}"></div>`).join('')}
             </div>
             <input type="hidden" id="gst-grad" value="${g.gradient || ''}">
@@ -756,8 +855,12 @@ const Groups = {
   },
 
   _pickGrad(el, val, inputId, pickerId) {
-    document.querySelectorAll(`#${pickerId} > div`).forEach(d => d.style.border = '2px solid transparent');
+    document.querySelectorAll(`#${pickerId} .grp-grad-swatch, #${pickerId} > div`).forEach(d => {
+      d.style.border  = '2px solid transparent';
+      d.classList.remove('selected');
+    });
     el.style.border = '2px solid var(--primary)';
+    el.classList.add('selected');
     const inp = document.getElementById(inputId);
     if (inp) inp.value = val;
   },
@@ -796,7 +899,7 @@ const Groups = {
   },
 
   // ═══════════════════════════════════════════════
-  //  CREATE MODAL
+  //  CREATE MODAL  ✨ now with emoji picker grid
   // ═══════════════════════════════════════════════
   _createModalHTML() {
     const gradients = [
@@ -806,34 +909,40 @@ const Groups = {
     ];
     return `
       <div id="create-group-modal" class="pf-modal-overlay pf-hidden" onclick="if(event.target===this)Groups.hideCreateModal()">
-        <div class="pf-modal" onclick="event.stopPropagation()" style="width:480px;">
+        <div class="pf-modal" onclick="event.stopPropagation()" style="width:500px;max-height:90vh;overflow-y:auto;">
           <div class="pf-modal-title">🌐 Create New Group</div>
+
           <div class="pf-field" style="margin-top:14px;"><label>Group Name *</label>
             <input id="grp-c-name" class="input" placeholder="e.g. Photography Lovers" maxlength="60">
           </div>
+
           <div class="pf-field" style="margin-top:10px;"><label>Description</label>
             <textarea id="grp-c-desc" class="input" rows="3" placeholder="What is this group about?"></textarea>
           </div>
-          <div style="display:flex;gap:12px;margin-top:10px;">
-            <div class="pf-field" style="flex:1;"><label>Emoji</label>
-              <input id="grp-c-emoji" class="input" placeholder="🎸" maxlength="4">
-            </div>
-            <div class="pf-field" style="flex:2;"><label>Privacy</label>
-              <select id="grp-c-privacy" class="input">
-                <option value="public">🌐 Public</option>
-                <option value="private">🔒 Private</option>
-                <option value="secret">🕵️ Secret</option>
-              </select>
-            </div>
+
+          <!-- ✨ Emoji picker grid (replaces plain text input) -->
+          <div style="margin-top:10px;">
+            ${this._emojiPickerHTML('grp-c', '🌐')}
           </div>
+
+          <div class="pf-field" style="margin-top:4px;"><label>Privacy</label>
+            <select id="grp-c-privacy" class="input">
+              <option value="public">🌐 Public</option>
+              <option value="private">🔒 Private</option>
+              <option value="secret">🕵️ Secret</option>
+            </select>
+          </div>
+
           <div class="pf-field" style="margin-top:10px;"><label>Theme Colour</label>
             <div style="display:flex;gap:8px;flex-wrap:wrap;" id="grp-c-grad-pick">
-              ${gradients.map((g, i) => `<div onclick="Groups._pickGrad(this,'${g}','grp-c-grad','grp-c-grad-pick')"
-                style="width:34px;height:34px;border-radius:8px;background:${g};cursor:pointer;border:2px solid ${i === 0 ? 'var(--primary)' : 'transparent'};"
+              ${gradients.map((g, i) => `<div class="grp-grad-swatch${i === 0 ? ' selected' : ''}"
+                onclick="Groups._pickGrad(this,'${g}','grp-c-grad','grp-c-grad-pick')"
+                style="background:${g};"
                 data-gradient="${g}"></div>`).join('')}
             </div>
             <input type="hidden" id="grp-c-grad" value="${gradients[0]}">
           </div>
+
           <div style="display:flex;gap:8px;margin-top:18px;">
             <button class="btn btn-primary" onclick="Groups.createGroup()" style="flex:1;">Create Group</button>
             <button class="btn btn-ghost" onclick="Groups.hideCreateModal()" style="flex:1;">Cancel</button>
@@ -868,8 +977,7 @@ const Groups = {
   },
 
   // ═══════════════════════════════════════════════
-  //  EDIT MODAL
-  //  FIX: Privacy field ditambah + value diset dalam showEditModal
+  //  EDIT MODAL  ✨ now with emoji picker grid
   // ═══════════════════════════════════════════════
   _editModalHTML() {
     const gradients = [
@@ -879,35 +987,41 @@ const Groups = {
     ];
     return `
       <div id="edit-group-modal" class="pf-modal-overlay pf-hidden" onclick="if(event.target===this)Groups.hideEditModal()">
-        <div class="pf-modal" onclick="event.stopPropagation()" style="width:480px;">
+        <div class="pf-modal" onclick="event.stopPropagation()" style="width:500px;max-height:90vh;overflow-y:auto;">
           <div class="pf-modal-title">✏️ Edit Group</div>
           <input type="hidden" id="grp-e-id">
+
           <div class="pf-field" style="margin-top:14px;"><label>Group Name *</label>
             <input id="grp-e-name" class="input" maxlength="60">
           </div>
+
           <div class="pf-field" style="margin-top:10px;"><label>Description</label>
             <textarea id="grp-e-desc" class="input" rows="3"></textarea>
           </div>
-          <div style="display:flex;gap:12px;margin-top:10px;">
-            <div class="pf-field" style="flex:1;"><label>Emoji</label>
-              <input id="grp-e-emoji" class="input" maxlength="4">
-            </div>
-            <div class="pf-field" style="flex:2;"><label>Privacy</label>
-              <select id="grp-e-privacy" class="input">
-                <option value="public">🌐 Public</option>
-                <option value="private">🔒 Private</option>
-                <option value="secret">🕵️ Secret</option>
-              </select>
-            </div>
+
+          <!-- ✨ Emoji picker grid -->
+          <div style="margin-top:10px;" id="grp-e-emoji-wrap">
+            ${this._emojiPickerHTML('grp-e', '🌐')}
           </div>
+
+          <div class="pf-field" style="margin-top:4px;"><label>Privacy</label>
+            <select id="grp-e-privacy" class="input">
+              <option value="public">🌐 Public</option>
+              <option value="private">🔒 Private</option>
+              <option value="secret">🕵️ Secret</option>
+            </select>
+          </div>
+
           <div class="pf-field" style="margin-top:10px;"><label>Theme Colour</label>
             <div style="display:flex;gap:8px;flex-wrap:wrap;" id="grp-e-grad-pick">
-              ${gradients.map(g => `<div onclick="Groups._pickGrad(this,'${g}','grp-e-grad','grp-e-grad-pick')"
-                style="width:34px;height:34px;border-radius:8px;background:${g};cursor:pointer;border:2px solid transparent;"
+              ${gradients.map(g => `<div class="grp-grad-swatch"
+                onclick="Groups._pickGrad(this,'${g}','grp-e-grad','grp-e-grad-pick')"
+                style="background:${g};"
                 data-gradient="${g}"></div>`).join('')}
             </div>
             <input type="hidden" id="grp-e-grad">
           </div>
+
           <div style="display:flex;gap:8px;margin-top:18px;">
             <button class="btn btn-primary" onclick="Groups.saveEdit()" style="flex:1;">Save Changes</button>
             <button class="btn btn-ghost" onclick="Groups.hideEditModal()" style="flex:1;">Cancel</button>
@@ -925,19 +1039,37 @@ const Groups = {
       const res = await API.groups.get(groupId);
       const g   = res.group || res;
 
-      document.getElementById('grp-e-id').value    = g.id;
-      document.getElementById('grp-e-name').value  = g.name;
-      document.getElementById('grp-e-desc').value  = g.desc || '';
-      document.getElementById('grp-e-emoji').value = g.emoji || '';
-      document.getElementById('grp-e-grad').value  = g.gradient || '';
+      document.getElementById('grp-e-id').value   = g.id;
+      document.getElementById('grp-e-name').value = g.name;
+      document.getElementById('grp-e-desc').value = g.desc || '';
 
-      // FIX: Set privacy dropdown value
+      // Set hidden emoji input + update picker selection + preview
+      const currentEmoji = g.emoji || '🌐';
+      const emojiInp = document.getElementById('grp-e-emoji');
+      if (emojiInp) emojiInp.value = currentEmoji;
+
+      // Update preview icon
+      const previewIcon = document.getElementById('grp-e-emoji-preview-icon');
+      if (previewIcon) previewIcon.textContent = currentEmoji;
+
+      // Mark correct emoji button as selected
+      const grid = document.getElementById('grp-e-emoji-grid');
+      if (grid) {
+        grid.querySelectorAll('.grp-emoji-opt').forEach(btn => {
+          btn.classList.toggle('selected', btn.dataset.emoji === currentEmoji);
+        });
+      }
+
+      // Set privacy
       const privacySel = document.getElementById('grp-e-privacy');
       if (privacySel) privacySel.value = g.privacy || 'public';
 
-      // Highlight current gradient
-      document.querySelectorAll('#grp-e-grad-pick > div').forEach(d => {
-        d.style.border = d.dataset.gradient === g.gradient ? '2px solid var(--primary)' : '2px solid transparent';
+      // Set gradient
+      document.getElementById('grp-e-grad').value = g.gradient || '';
+      document.querySelectorAll('#grp-e-grad-pick .grp-grad-swatch').forEach(d => {
+        const match = d.dataset.gradient === g.gradient;
+        d.classList.toggle('selected', match);
+        d.style.border = match ? '2px solid var(--primary)' : '2px solid transparent';
       });
 
       document.getElementById('edit-group-modal')?.classList.remove('pf-hidden');
@@ -957,7 +1089,7 @@ const Groups = {
         name,
         desc:     document.getElementById('grp-e-desc')?.value.trim(),
         emoji:    document.getElementById('grp-e-emoji')?.value.trim(),
-        privacy:  document.getElementById('grp-e-privacy')?.value || 'public',  // FIX
+        privacy:  document.getElementById('grp-e-privacy')?.value || 'public',
         gradient: document.getElementById('grp-e-grad')?.value,
       });
       UI.toast('Updated! ✅', 'success');

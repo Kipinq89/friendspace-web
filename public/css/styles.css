@@ -1,6 +1,6 @@
 @import url('notif.css');
 /* ============================================
-   FriendSpace — Main Stylesheet
+   KipinQ — Main Stylesheet
    Organized: Reset → Variables → Layout →
               Components → Views → Animations
    ============================================ */
@@ -3801,6 +3801,38 @@ body.no-glow .np-art.playing {
   pointer-events: none;
 }
 
+.pf-service-player {
+  margin-top: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--surface2);
+}
+
+.pf-service-player-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: #090609;
+}
+
+.pf-service-player-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.pf-service-player iframe {
+  width: 100%;
+  min-height: 280px;
+  border: none;
+  background: #000;
+}
+
 .pf-song-art {
   width: 54px;
   height: 54px;
@@ -5514,4 +5546,17 @@ body.no-glow .np-art.playing {
 
 .settings-toggles-row .settings-row > div {
   width: 100%;
+}
+/* -- Marquee Animation -- */
+.marquee-wrap.playing .marquee-text {
+  animation: marquee-scroll 15s linear infinite;
+}
+
+@keyframes marquee-scroll {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
 }

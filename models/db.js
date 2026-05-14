@@ -46,10 +46,13 @@ db.exec(`
     zodiac        TEXT DEFAULT '',
     profile_song_title  TEXT DEFAULT '',
     profile_song_artist TEXT DEFAULT '',
+    profile_song_url    TEXT DEFAULT '',
     privacy_profile     TEXT DEFAULT 'everyone',  -- everyone | friends | only-me
     privacy_posts       TEXT DEFAULT 'everyone',  -- everyone | friends | only-me
     privacy_online      INTEGER DEFAULT 1,        -- 0 | 1
     allow_friend_reqs   INTEGER DEFAULT 1,
+    youtube_url         TEXT DEFAULT '',
+    spotify_url         TEXT DEFAULT '',
     created_at    TEXT DEFAULT (datetime('now')),
     last_seen     TEXT DEFAULT (datetime('now'))
   );
@@ -160,6 +163,14 @@ db.exec(`
   );
 
 `);
+
+const existingColumns = db.prepare("PRAGMA table_info(users)").all().map(c => c.name);
+if (!existingColumns.includes('profile_song_url')) {
+  db.prepare("ALTER TABLE users ADD COLUMN profile_song_url TEXT DEFAULT ''").run();
+}
+if (!existingColumns.includes('spotify_url')) {
+  db.prepare("ALTER TABLE users ADD COLUMN spotify_url TEXT DEFAULT ''").run();
+}
 
 console.log('✅ Database initialised at', DB_PATH);
 

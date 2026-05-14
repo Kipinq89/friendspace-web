@@ -43,7 +43,7 @@ const Profile = {
         <!-- Profile card -->
         <div class="pf-card">
           <div class="pf-avatar-wrap">
-            <div class="pf-avatar" id="pf-avatar">${this._buildAvatar(u)}</div>
+            <div class="pf-avatar" id="pf-avatar" onclick="Profile.toggleEdit()">${this._buildAvatar(u)}</div>
             <div class="pf-online-dot"></div>
           </div>
 
@@ -122,10 +122,11 @@ const Profile = {
   // ─── Builder helpers ────────────────────────────────────────────
 
   _buildAvatar(u) {
-    if (u.avatar && (u.avatar.startsWith('data:') || u.avatar.startsWith('http'))) {
-      return `<img src="${u.avatar}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`;
+    const candidate = u.avatar || u.emoji || '';
+    if (candidate && (candidate.startsWith('data:') || candidate.includes('://') || candidate.startsWith('/'))) {
+      return `<img src="${candidate}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" onerror="this.style.display='none';this.nextSibling.style.display='inline-block';"><span style="display:none;">😎</span>`;
     }
-    return u.avatar || '😎';
+    return candidate || '😎';
   },
 
   _buildBannerFx() {
@@ -143,7 +144,11 @@ const Profile = {
   },
 
   _buildSongWidget(u) {
-    const hasSong = u.profileSongTitle;
+    const url = u.profileSongUrl || u.profile_song_url || u.youtubeUrl || u.youtube_url || u.spotifyUrl || u.spotify_url || '';
+    const displayTitle = u.profileSongTitle || 'No profile song';
+    const displayArtist = u.profileSongArtist ? `${u.profileSongArtist} · Profile Song` : (url ? 'Open your music link' : 'Add a song URL below');
+    const isServiceLink = this._isYouTubeUrl(url) || this._isSpotifyUrl(url);
+
     return `
       <div class="pf-song-widget" id="pf-song-widget">
         <div class="pf-song-art">
@@ -153,14 +158,15 @@ const Profile = {
           🎵
         </div>
         <div class="pf-song-info">
-          <div class="pf-song-title" id="pf-song-title">${u.profileSongTitle || 'No profile song'}</div>
-          <div class="pf-song-artist" id="pf-song-artist">${u.profileSongArtist ? u.profileSongArtist + ' · Profile Song' : 'Add a song URL below'}</div>
+          <div class="pf-song-title" id="pf-song-title">${displayTitle}</div>
+          <div class="pf-song-artist" id="pf-song-artist">${displayArtist}</div>
           <div class="pf-song-progress">
             <div class="pf-song-progress-fill" id="pf-song-pfill"></div>
           </div>
         </div>
-        <button class="pf-play-btn" id="pf-play-btn" onclick="Profile.toggleSong(this)">▶</button>
+        <button class="pf-play-btn" id="pf-play-btn" onclick="Profile.toggleSong(this)">${isServiceLink ? '▶' : '▶'}</button>
       </div>
+      <div id="pf-service-player-container" class="pf-service-player" style="display:none;"></div>
     `;
   },
 
@@ -188,11 +194,23 @@ const Profile = {
         </div>
         <div class="pf-edit-section-title">🎵 Profile Song</div>
         <div class="pf-edit-grid">
-          ${this._field('Song Title', 'pf-input-song-title', u.profileSongTitle, 'text')}
-          ${this._field('Artist', 'pf-input-song-artist', u.profileSongArtist, 'text')}
+          ${this._field('Song Title', 'pf-input-song-title', u.profileSongTitle || u.profile_song_title, 'text')}
+          ${this._field('Artist', 'pf-input-song-artist', u.profileSongArtist || u.profile_song_artist, 'text')}
           <div class="pf-field pf-field-wide">
             <label>Audio URL (mp3/ogg/etc)</label>
-            <input id="pf-input-song-url" class="input" type="text" value="${u.profileSongUrl || ''}" placeholder="https://example.com/song.mp3">
+            <input id="pf-input-song-url" class="input" type="text" value="${u.profileSongUrl || u.profile_song_url || ''}" placeholder="https://example.com/song.mp3">
+          </div>
+        </div>
+
+        <div class="pf-edit-section-title">📺 YouTube / Spotify</div>
+        <div class="pf-edit-grid">
+          <div class="pf-field pf-field-wide">
+            <label>YouTube URL</label>
+            <input id="pf-input-youtube-url" class="input" type="text" value="${u.youtubeUrl || u.youtube_url || ''}" placeholder="https://www.youtube.com/watch?v=...">
+          </div>
+          <div class="pf-field pf-field-wide">
+            <label>Spotify URL</label>
+            <input id="pf-input-spotify-url" class="input" type="text" value="${u.spotifyUrl || u.spotify_url || ''}" placeholder="https://open.spotify.com/track/...">
           </div>
         </div>
 
@@ -216,6 +234,74 @@ const Profile = {
     `;
   },
 
+  _isYouTubeUrl(url = '') {
+    return typeof url === 'string' && /(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|v\/|music\/watch\?v=))([A-Za-z0-9_-]{11})/i.test(url);
+  },
+
+  _isSpotifyUrl(url = '') {
+    return typeof url === 'string' && /(?:open\.spotify\.com\/(?:track|playlist|album|episode)\/|spotify:\/\/(?:track|playlist|album|episode):)[A-Za-z0-9]+/i.test(url);
+  },
+
+  _isAudioUrl(url = '') {
+    return typeof url === 'string' && /\.(mp3|ogg|wav|m4a|aac|flac)(\?|$)/i.test(url);
+  },
+
+  _getServiceEmbedUrl(url = '') {
+    if (!url || typeof url !== 'string') return '';
+    const normalizedUrl = url.trim();
+
+    const youtubeMatch = normalizedUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|v\/|music\/watch\?v=))([A-Za-z0-9_-]{11})/i);
+    if (youtubeMatch) {
+      const origin = typeof window !== 'undefined' ? window.location.origin : '';
+      return `https://www.youtube.com/embed/${youtubeMatch[1]}?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1${origin ? `&origin=${encodeURIComponent(origin)}` : ''}`;
+    }
+
+    const spotifyMatch = normalizedUrl.match(/(?:open\.spotify\.com\/(track|playlist|album|episode)\/|spotify:\/\/(track|playlist|album|episode):)([A-Za-z0-9]+)/i);
+    if (spotifyMatch) {
+      const type = spotifyMatch[1] || spotifyMatch[2];
+      const id = spotifyMatch[3];
+      return `https://open.spotify.com/embed/${type}/${id}`;
+    }
+
+    return '';
+  },
+
+  renderServicePlayer(url) {
+    const container = document.getElementById('pf-service-player-container');
+    if (!container) return;
+    const embedUrl = this._getServiceEmbedUrl(url);
+    if (!embedUrl) {
+      UI.toast('Unsupported service URL. Use YouTube or Spotify.', 'error');
+      return;
+    }
+    container.style.display = 'block';
+    container.innerHTML = `
+      <div class="pf-service-player-inner">
+        <div class="pf-service-player-header">
+          <span>Service player</span>
+          <button class="btn btn-ghost btn-small" onclick="Profile.hideServicePlayer()">✕</button>
+        </div>
+        <iframe
+          src="${embedUrl}"
+          title="Profile service player"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture; web-share"
+          allowfullscreen
+          loading="lazy"
+          playsinline
+          referrerpolicy="strict-origin-when-cross-origin"
+        ></iframe>
+      </div>
+    `;
+  },
+
+  hideServicePlayer() {
+    const container = document.getElementById('pf-service-player-container');
+    if (!container) return;
+    container.innerHTML = '';
+    container.style.display = 'none';
+  },
+
   _buildAvatarGallery() {
     const photos = AppState.photos.filter(p => p.src);
     if (!photos.length) return '<div class="pf-gallery-empty">Upload photos first to pick a profile picture.</div>';
@@ -236,6 +322,8 @@ const Profile = {
       ['🎸 Fav Band', u.band],
       ['♏ Zodiac',   u.zodiac],
       ['📅 Joined',   u.joined],
+      ['📺 YouTube',  (u.youtubeUrl || u.youtube_url) ? `<a href="${u.youtubeUrl || u.youtube_url}" target="_blank">${u.youtubeUrl || u.youtube_url}</a>` : null],
+      ['🎧 Spotify',  (u.spotifyUrl || u.spotify_url) ? `<a href="${u.spotifyUrl || u.spotify_url}" target="_blank">${u.spotifyUrl || u.spotify_url}</a>` : null],
     ];
     return `
       <div class="pf-about-card">
@@ -414,15 +502,27 @@ const Profile = {
       zodiac:           read('pf-input-zodiac'),
       emoji:            read('pf-input-avatar'),
       profile_song_title:  read('pf-input-song-title'),
-      profile_song_artist: read('pf-input-song-artist')
+      profile_song_artist: read('pf-input-song-artist'),
+      profile_song_url:  read('pf-input-song-url'),
+      youtube_url:      read('pf-input-youtube-url'),
+      spotify_url:      read('pf-input-spotify-url')
     };
 
     try {
       const res = await API.auth.updateProfile(updates);
       const u = res.user;
-      
+      const avatarValue = u.avatar || u.emoji || AppState.currentUser.avatar;
+      const normalized = {
+        ...u,
+        profileSongUrl: u.profile_song_url || u.profileSongUrl,
+        profileSongTitle: u.profile_song_title || u.profileSongTitle,
+        profileSongArtist: u.profile_song_artist || u.profileSongArtist,
+        youtubeUrl: u.youtube_url || u.youtubeUrl,
+        spotifyUrl: u.spotify_url || u.spotifyUrl,
+      };
+
       // Update local state
-      AppState.currentUser = { ...AppState.currentUser, ...u, avatar: u.emoji };
+      AppState.currentUser = { ...AppState.currentUser, ...normalized, avatar: avatarValue };
 
       // Update sidebar
       const sideUser = document.querySelector('.username');
@@ -432,7 +532,12 @@ const Profile = {
 
       const sideAvatar = document.querySelector('.avatar');
       if (sideAvatar) {
-        sideAvatar.innerHTML = u.emoji || '😎';
+        sideAvatar.innerHTML = this._buildAvatar(AppState.currentUser);
+      }
+
+      const profileAvatar = document.getElementById('pf-avatar');
+      if (profileAvatar) {
+        profileAvatar.innerHTML = this._buildAvatar(AppState.currentUser);
       }
 
       this.render();
@@ -474,11 +579,35 @@ const Profile = {
 
   toggleSong(btn) {
     const u = AppState.currentUser;
-    if (!u.profileSongUrl) {
-      UI.toast('Add a profile song URL first! 🎵', 'warn');
+    const formSongInput = document.getElementById('pf-input-song-url');
+    const songUrl = u.profileSongUrl || u.profile_song_url || u.youtubeUrl || u.youtube_url || u.spotifyUrl || u.spotify_url || (formSongInput ? formSongInput.value.trim() : '');
+    if (!songUrl) {
+      UI.toast('Add a profile song or service URL first! 🎵', 'warn');
       this.toggleEdit();
       return;
     }
+
+    if (this._isYouTubeUrl(songUrl) || this._isSpotifyUrl(songUrl)) {
+      const container = document.getElementById('pf-service-player-container');
+      const vis = document.getElementById('pf-song-vis');
+      
+      if (container && container.style.display === 'block') {
+        this.hideServicePlayer();
+        if (vis) vis.classList.remove('playing');
+        btn.textContent = '▶';
+      } else {
+        // Pause the global music player so sounds don't overlap
+        if (typeof Player !== 'undefined' && Player._audio && !Player._audio.paused) {
+          Player._audio.pause();
+        }
+        this.renderServicePlayer(songUrl);
+        if (vis) vis.classList.add('playing');
+        btn.textContent = '⏸';
+      }
+      return;
+    }
+
+    this.hideServicePlayer();
 
     if (typeof Player === 'undefined' || !Player._audio) {
       UI.toast('Player unavailable.', 'error');
@@ -486,8 +615,8 @@ const Profile = {
     }
 
     const audio = Player._audio;
-    if (audio.src !== u.profileSongUrl) {
-      audio.src = u.profileSongUrl;
+    if (audio.src !== songUrl) {
+      audio.src = songUrl;
       audio.load();
     }
 
@@ -515,6 +644,7 @@ const Profile = {
       fill.style.width = (audio.currentTime / audio.duration * 100) + '%';
       requestAnimationFrame(tick);
     };
+
     requestAnimationFrame(tick);
   },
 

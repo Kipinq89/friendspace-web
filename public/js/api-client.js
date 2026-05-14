@@ -137,6 +137,14 @@ const API = (() => {
   };
 
   // ════════════════════════════════════════
+  //  NOTIFICATIONS
+  // ════════════════════════════════════════
+  const Notifications = {
+    getAll:      ()              => get('/messages/notifications/all'),
+    markAllRead: ()              => post('/messages/notifications/read-all'),
+  };
+
+  // ════════════════════════════════════════
   //  GROUPS
   // ════════════════════════════════════════
   const Groups = {
@@ -280,6 +288,7 @@ const API = (() => {
     posts: Posts, 
     friends: Friends, 
     messages: Messages, 
+    notifications: Notifications,
     groups: Groups, 
     socket: Socket, 
     token: Token 
